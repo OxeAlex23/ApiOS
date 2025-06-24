@@ -1,7 +1,8 @@
 import express from 'express';
 const router = express.Router();
 import User from '../models/UserSchema.js';
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
+import authObjectId from '../middleware/authObjectId.js';
 
 router.post('/', async (req, res) => {
     try {
@@ -17,12 +18,8 @@ router.get('/', async (req, res) => {
     res.json(users);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authObjectId ,async (req, res) => {
     const  userId  = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-       return res.status(404).json({ msg: 'Id inválido!' });
-    }
 
     try {
         const user = await User.findById(userId);
@@ -36,12 +33,8 @@ router.get('/:id', async (req, res) => {
 });
 
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', authObjectId ,async (req, res) => {
   const  userId  = req.params.id;
-
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ msg: 'ID inválido' });
-  }
 
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true });
@@ -54,7 +47,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/by-id/:id', async (req, res) => {
+router.delete('/by-id/:id', authObjectId ,async (req, res) => {
 
     const userDeleted = await User.findByIdAndDelete(req.params.id);
 

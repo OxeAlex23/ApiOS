@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import ProductSchema from '../models/ProductSchema.js';
 import mongoose from 'mongoose';
+import authObjectId from '../middleware/authObjectId.js';
 
 router.post('/', async (req, res) => {
     try {
@@ -17,12 +18,8 @@ router.get('/', async (req, res) => {
     res.json(products);
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authObjectId ,async (req, res) => {
     const productId = req.params.id;
-    
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-        return res.status(404).json({msg: 'produto não encontrado!'});
-    }
 
     try {
         const productFound = await ProductSchema.findById(productId);
@@ -36,12 +33,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', authObjectId ,async (req, res) => {
     const productId = req.params.id;
-
-       if (!mongoose.Types.ObjectId.isValid(productId)) {
-        return res.status(404).json({msg: 'produto não encontrado!'});
-    }
 
     try {
         const updateProduct = await ProductSchema.findByIdAndUpdate(productId, req.body, {new:  true});
@@ -55,7 +48,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authObjectId ,async (req, res) => {
     const productDeleted = await ProductSchema.findByIdAndDelete(req.params.id);
 
     if (!productDeleted) {
