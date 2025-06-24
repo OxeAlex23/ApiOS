@@ -38,3 +38,5 @@ router.post('/', async (req, res) => {
 });
 
 export default router;
+
+//  COMPLETAS AS ROUTES GET, GET:ID, PUT, DELETE
