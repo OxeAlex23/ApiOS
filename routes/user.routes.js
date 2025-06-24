@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import User from '../modules/User.js';
+import User from '../models/UserSchema.js';
 import mongoose, { mongo } from 'mongoose';
 
 router.post('/', async (req, res) => {

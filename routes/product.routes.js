@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import ProductSchema from '../modules/ProductSchema.js';
+import ProductSchema from '../models/ProductSchema.js';
 import mongoose from 'mongoose';
 
 router.post('/', async (req, res) => {
