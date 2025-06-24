@@ -8,6 +8,7 @@ const CompraSchema = new mongoose.Schema({
     },
     products: [
         {
+            _id: false,
             id: {type: mongoose.Types.ObjectId, ref: 'ProductSchema'},
             name: {type: String, required: true}
         }
