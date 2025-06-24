@@ -3,11 +3,13 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 import userRoutes from './routes/user.routes.js';
+import productRoute from './routes/product.routes.js';
 
 const app = express();
 app.use(express.json());
 
 app.use('/users', userRoutes);
+app.use('products', productRoute);
 
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;
