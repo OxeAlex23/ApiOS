@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import userRoutes from './routes/user.routes.js';
 import productRoutes from './routes/product.routes.js';
-import compraRoutes from './routes/compra.routes.js'
+import compraRoutes from './routes/compra.routes.js';
+import businessRoutes from './routes/business.routes.js';
 
 const app = express();
 app.use(express.json());
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/compras', compraRoutes);
+app.use('/business', businessRoutes);
 
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;

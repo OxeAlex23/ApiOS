@@ -2,10 +2,12 @@ import express from 'express';
 const router = express.Router();
 import userRoutes from './user.routes.js';
 import productRoutes from './product.routes.js';
-import compraRoutes from './compra.routes.js'
+import compraRoutes from './compra.routes.js';
+import businessRoutes from './business.routes.js';
 
-router.use('/user', userRoutes);
+router.use('/users', userRoutes);
 router.use('/products', productRoutes);
 router.use('/compras', compraRoutes);
+router.use('/business', businessRoutes);
 
 export default router;
