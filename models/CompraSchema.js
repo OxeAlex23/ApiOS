@@ -20,3 +20,5 @@ const CompraSchema = new mongoose.Schema({
 });
 
 export default mongoose.model('CompraSchema', CompraSchema);
+
+// trocar compraSchema por OrderProduct

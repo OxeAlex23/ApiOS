@@ -8,6 +8,9 @@ import compraRoutes from './routes/compra.routes.js';
 import businessRoutes from './routes/business.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import orderTrackRoutes from './routes/orderTrack.routes.js';
+import serviceRoutes from './routes/services.routes.js';
+import orderServiceRoutes from './routes/orderService.routes.js';
+import customerRoutes from './routes/customer.routes.js';
 
 const app = express();
 app.use(express.json());
@@ -18,6 +21,9 @@ app.use('/compras', compraRoutes);
 app.use('/business', businessRoutes);
 app.use('/orders', orderRoutes);
 app.use('/orderTracks', orderTrackRoutes);
+app.use('/services', serviceRoutes);
+app.use('/orderServices', orderServiceRoutes);
+app.use('/customers', customerRoutes);
 
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;
