@@ -1,7 +1,6 @@
 import express from 'express';
 const router = express.Router();
 import User from '../models/UserSchema.js';
-import mongoose from 'mongoose';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.post('/', async (req, res) => {
@@ -11,7 +10,7 @@ router.post('/', async (req, res) => {
     } catch (err) {
         res.status(400).json({ erro: err.message });
     }
-})
+});
 
 router.get('/', async (req, res) => {
     const users = await User.find();
@@ -47,7 +46,7 @@ router.put('/:id', authObjectId ,async (req, res) => {
   }
 });
 
-router.delete('/by-id/:id', authObjectId ,async (req, res) => {
+router.delete('/:id', authObjectId ,async (req, res) => {
 
     const userDeleted = await User.findByIdAndDelete(req.params.id);
 
