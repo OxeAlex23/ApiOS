@@ -4,10 +4,12 @@ import userRoutes from './user.routes.js';
 import productRoutes from './product.routes.js';
 import compraRoutes from './compra.routes.js';
 import businessRoutes from './business.routes.js';
+import orderRoutes from './order.routes.js';
 
 router.use('/users', userRoutes);
 router.use('/products', productRoutes);
 router.use('/compras', compraRoutes);
 router.use('/business', businessRoutes);
+router.use('/orders', orderRoutes);
 
 export default router;
