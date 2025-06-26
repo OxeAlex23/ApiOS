@@ -13,6 +13,7 @@ import productCategoryRoutes from './routes/productCategory.routes.js';
 import orderStatusRoutes from './routes/orderStatus.routes.js';
 import businessUserRoleRoutes from './routes/businessUserRole.routes.js';
 import businessUserRoutes from './routes/businessUser.routes.js';
+import userTypeRoutes from './routes/userType.routes.js';
 
 router.use('/users', userRoutes);
 router.use('/products', productRoutes);
@@ -27,5 +28,6 @@ router.use('/productsCategory', productCategoryRoutes);
 router.use('/ordersStatus', orderStatusRoutes);
 router.use('/businessUserRole', businessUserRoleRoutes);
 router.use('/businessUsers', businessUserRoutes);
+router.use('/usersType', userTypeRoutes);
 
 export default router;

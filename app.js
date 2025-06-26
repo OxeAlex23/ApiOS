@@ -15,6 +15,7 @@ import productCategoryRoutes from './routes/productCategory.routes.js';
 import orderStatusRoutes from './routes/orderStatus.routes.js';
 import businessUserRoleRoutes from './routes/businessUserRole.routes.js';
 import businessUserRoutes from './routes/businessUser.routes.js';
+import userTypeRoutes from './routes/userType.routes.js';
 
 const app = express();
 app.use(express.json());
@@ -32,6 +33,7 @@ app.use('/productsCategory', productCategoryRoutes);
 app.use('/ordersStatus', orderStatusRoutes);
 app.use('/businessUserRole', businessUserRoleRoutes);
 app.use('/businessUsers', businessUserRoutes);
+app.use('/usersType', userTypeRoutes);
 
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;
