@@ -4,4 +4,4 @@ const OrderStatusSchema = new mongoose.Schema({
     OrderStatusDesc: {type: String, required: true}
 });
 
-export default mongoose.model('OrderStatusSchema', OrderStatusSchema)
+export default mongoose.model('OrderStatus', OrderStatusSchema)

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const OrderTrackSchema = new mongoose.Schema({
-    OrderId: {type: mongoose.Types.ObjectId, ref: 'OrderSchema' ,required: true},
+    OrderId: {type: mongoose.Types.ObjectId, ref: 'Order' ,required: true},
    // OrderStatusId: {type: mongoose.Types.ObjectId, ref: 'OrderStatus', required: true},
     TrackCode: {type: Number},
     Title: String,
@@ -9,4 +9,4 @@ const OrderTrackSchema = new mongoose.Schema({
     Date: {type: Date, default: Date.now}
 });
 
-export default mongoose.model('OrderTrackSchema', OrderTrackSchema);
+export default mongoose.model('OrderTrack', OrderTrackSchema);

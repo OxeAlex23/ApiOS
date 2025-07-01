@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const ServicesSchema = new mongoose.Schema({
-    BusinessId: {type: mongoose.Types.ObjectId, ref: 'BusinessSchema', required: true},
+    BusinessId: {type: mongoose.Types.ObjectId, ref: 'Business', required: true},
     ServiceName: String,
     ServiceDescription: String,
     BasePrice: Number,
@@ -9,4 +9,4 @@ const ServicesSchema = new mongoose.Schema({
     IsActive: {type: Boolean, default: true}
 });
 
-export default mongoose.model('ServicesSchema', ServicesSchema);
+export default mongoose.model('Services', ServicesSchema);

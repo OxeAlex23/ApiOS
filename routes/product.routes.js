@@ -1,12 +1,11 @@
 import express from 'express';
 const router = express.Router();
-import ProductSchema from '../models/ProductSchema.js';
-import mongoose from 'mongoose';
+import Product from '../models/ProductSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.post('/', async (req, res) => {
     try {
-        const product = await ProductSchema.create(req.body);
+        const product = await Product.create(req.body);
         res.status(200).json({msg: 'produdo criado com sucesso!', product });
     } catch (err) {
         res.status(400).json({err: err.message});
@@ -14,7 +13,7 @@ router.post('/', async (req, res) => {
 })
 
 router.get('/', async (req, res) => {
-    const products = await ProductSchema.find();
+    const products = await Product.find();
     res.json(products);
 })
 
@@ -22,7 +21,7 @@ router.get('/:id', authObjectId ,async (req, res) => {
     const productId = req.params.id;
 
     try {
-        const productFound = await ProductSchema.findById(productId);
+        const productFound = await Product.findById(productId);
         if (!productFound) {
             return res.status(404).json({ msg: 'produto não encontrado!' });
         }
@@ -37,7 +36,7 @@ router.put('/:id', authObjectId ,async (req, res) => {
     const productId = req.params.id;
 
     try {
-        const updateProduct = await ProductSchema.findByIdAndUpdate(productId, req.body, {new:  true});
+        const updateProduct = await Product.findByIdAndUpdate(productId, req.body, {new:  true});
         if (!updateProduct) {
             return res.status(404).json({ msg: 'produto não encontrado' });
         }
@@ -49,7 +48,7 @@ router.put('/:id', authObjectId ,async (req, res) => {
 });
 
 router.delete('/:id', authObjectId ,async (req, res) => {
-    const productDeleted = await ProductSchema.findByIdAndDelete(req.params.id);
+    const productDeleted = await Product.findByIdAndDelete(req.params.id);
 
     if (!productDeleted) {
         return res.status(404).json({msg: 'produto não encontrado!'});

@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import OrderSchema from '../models/OrderSchema.js';
+import Order from '../models/OrderSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const orders = await OrderSchema.find();
+    const orders = await Order.find();
     res.json(orders);
 });
 
@@ -14,13 +14,13 @@ router.get('/:id', authObjectId , async (req, res) => {
         return res.status(404).json({msg: 'ordem não encontrada!'})
     }
 
-    const orders = await OrderSchema.findById(orderId);
+    const orders = await Order.findById(orderId);
     res.json(orders);
 });
 
 router.post('/', async (req, res) => {
     try {
-        const order = await OrderSchema.create(req.body);
+        const order = await Order.create(req.body);
         res.status(200).json({msg: 'ordem criada com sucesso!', order});
     } catch (err) {
         res.status(500).json({erro: err.message});
@@ -34,7 +34,7 @@ router.put('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const updateOrder = await OrderSchema.findByIdAndUpdate(orderId, req.body, {new: true});
+        const updateOrder = await Order.findByIdAndUpdate(orderId, req.body, {new: true});
         res.status(200).json({msg: 'ordem atualizada com sucesso!', updateOrder});
     } catch (err) {
         res.status(500).json({erro: err.message});
@@ -48,7 +48,7 @@ router.delete('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const deletedOrder = await OrderSchema.findByIdAndDelete(orderId);
+        const deletedOrder = await Order.findByIdAndDelete(orderId);
         res.status(200).json({msg: 'ordem deletada com sucesso!', deletedOrder});
     } catch (err) {
         res.status(500).json({erro: err.message});

@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import ServicesSchema from '../models/ServicesSchema.js';
+import Services from '../models/ServicesSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const services = await ServicesSchema.find();
+    const services = await Services.find();
     res.json(services);
 });
 
@@ -15,7 +15,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const service = await ServicesSchema.findById(serviceId);
+        const service = await Services.findById(serviceId);
         res.json(service);
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -25,7 +25,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const service = await ServicesSchema.create(req.body);
+        const service = await Services.create(req.body);
         res.status(200).json({msg: 'serviço criado com sucesso!', service});
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -39,7 +39,7 @@ router.put('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const updateService = await ServicesSchema.findByIdAndUpdate(serviceId, req.body, {new: true});
+        const updateService = await Services.findByIdAndUpdate(serviceId, req.body, {new: true});
         res.status(200).json({msg: 'serviço atualizado com sucesso!', updateService});
     } catch (err) {
          res.status(500).json({ erro: err.message });
@@ -53,7 +53,7 @@ router.delete('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const deletedService = await ServicesSchema.findByIdAndDelete(serviceId);
+        const deletedService = await Services.findByIdAndDelete(serviceId);
         res.status(200).json({msg: 'serviço deletado com sucesso!', deletedService});
     } catch (err) {
          res.status(500).json({ erro: err.message });

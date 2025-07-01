@@ -16,4 +16,4 @@ const productSchema = new Schema({
     BusinessId: Number
 });
 
-export default mongoose.model('ProductSchema', productSchema);
+export default mongoose.model('Product', productSchema);

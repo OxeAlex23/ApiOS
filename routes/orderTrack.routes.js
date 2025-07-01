@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import OrderTrackSchema from '../models/OrderTrackSchema.js';
+import OrderTrack from '../models/OrderTrackSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const orderstracks = await OrderTrackSchema.find();
+    const orderstracks = await OrderTrack.find();
     res.json(orderstracks);
 });
 
@@ -15,7 +15,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const ordertrack = await OrderTrackSchema.findById(orderTrackId);
+        const ordertrack = await OrderTrack.findById(orderTrackId);
         res.json(ordertrack);
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -25,7 +25,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const ordertrack = await OrderTrackSchema.create(req.body);
+        const ordertrack = await OrderTrack.create(req.body);
         res.status(200).json({msg: 'acompanhamento de pedidos criado com sucesso!', ordertrack})
     } catch (err) {
         res.status(500).json({ erro: err.message })
@@ -39,7 +39,7 @@ router.put('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const updatedOrderTrack = await OrderTrackSchema.findByIdAndUpdate(orderTrackId, req.body, {new: true});
+        const updatedOrderTrack = await OrderTrack.findByIdAndUpdate(orderTrackId, req.body, {new: true});
         res.status(200).json({msg: 'acompanhamento de pedidos atualizado com sucesso!', updatedOrderTrack});
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -53,7 +53,7 @@ router.delete('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const deletedOrderTrack = await OrderTrackSchema.findByIdAndDelete(orderTrackId);
+        const deletedOrderTrack = await OrderTrack.findByIdAndDelete(orderTrackId);
         res.status(200).json({msg: ' acompanhamento de pedidos deletado com sucesso!', deletedOrderTrack});
     } catch (err) {
        res.status(500).json({ erro: err.message });

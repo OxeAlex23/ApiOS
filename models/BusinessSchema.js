@@ -14,4 +14,4 @@ const BusinessSchema = new mongoose.Schema({
     IsActive: {type: Boolean, default: true}
 });
 
-export default mongoose.model('BusinessSchema', BusinessSchema);
+export default mongoose.model('Business', BusinessSchema);

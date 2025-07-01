@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import OrderServiceSchema from '../models/OrderServiceSchema.js';
+import OrderService from '../models/OrderServiceSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const orderServices = await OrderServiceSchema.find();
+    const orderServices = await OrderService.find();
     res.json(orderServices);
 });
 
@@ -15,7 +15,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const orderService = await OrderServiceSchema.findById(orderServiceId);
+        const orderService = await OrderService.findById(orderServiceId);
         res.json(orderService);
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -25,7 +25,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const orderService = await OrderServiceSchema.create(req.body);
+        const orderService = await OrderService.create(req.body);
         res.status(200).json({msg: 'serviço de pedidos criado com sucesso!', orderService});
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -39,7 +39,7 @@ router.put('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const updateOrderService = await OrderServiceSchema.findByIdAndUpdate(orderServiceId, req.body, {new: true});
+        const updateOrderService = await OrderService.findByIdAndUpdate(orderServiceId, req.body, {new: true});
         res.status(200).json({msg: 'serviço de pedidos atualizado com sucesso!', updateOrderService});
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -53,7 +53,7 @@ router.delete('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const deletedOrderService = await OrderServiceSchema.findByIdAndDelete(orderServiceId);
+        const deletedOrderService = await OrderService.findByIdAndDelete(orderServiceId);
         res.status(200).json({msg: 'serviço de pedidos deletado com sucesso!', deletedOrderService});
     } catch (err) {
         res.status(500).json({ erro: err.message });

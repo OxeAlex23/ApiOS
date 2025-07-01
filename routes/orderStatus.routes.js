@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import OrderStatusSchema from '../models/OrderStatusSchema.js';
+import OrderStatus from '../models/OrderStatusSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const orderStatus = await OrderStatusSchema.find();
+    const orderStatus = await OrderStatus.find();
     res.json(orderStatus);
 })
 
@@ -15,7 +15,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const orderStatus = await OrderStatusSchema.findById(orderStatusId);
+        const orderStatus = await OrderStatus.findById(orderStatusId);
         res.json(orderStatus);
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -25,7 +25,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const orderStatus = await OrderStatusSchema.create(req.body);
+        const orderStatus = await OrderStatus.create(req.body);
         res.status(200).json({msg: 'status de pedido criado com sucesso!', orderStatus});
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -40,7 +40,7 @@ router.put('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const orderStatus = await OrderStatusSchema.findByIdAndUpdate(orderStatusId, req.body, {new: true});
+        const orderStatus = await OrderStatus.findByIdAndUpdate(orderStatusId, req.body, {new: true});
         res.status(200).json({msg: 'status de pedido atualizado com sucesso!', orderStatus});
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -55,7 +55,7 @@ router.put('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const deletedOrderStatus = await OrderStatusSchema.findByIdAndDelete(orderStatusId);
+        const deletedOrderStatus = await OrderStatus.findByIdAndDelete(orderStatusId);
         res.status(200).json({msg: 'status de pedido deletado com sucesso!', deletedOrderStatus});
     } catch (err) {
         res.status(500).json({ erro: err.message });

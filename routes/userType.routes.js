@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import UserTypeSchema from '../models/UserTypeSchema.js';
+import UserType from '../models/UserTypeSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const usersTypes = await UserTypeSchema.find();
+    const usersTypes = await UserType.find();
     res.json(usersTypes);
 });
 
@@ -15,7 +15,7 @@ router.get('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const userType = await UserTypeSchema.findById(userTypeId);
+        const userType = await UserType.findById(userTypeId);
         res.json(userType);
     } catch (err) {
         res.status(500).json({erro: err.message});
@@ -24,7 +24,7 @@ router.get('/:id', authObjectId , async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const userType = await UserTypeSchema.create(req.body);
+        const userType = await UserType.create(req.body);
         res.status(200).json({msg: 'tipo de usuário criado com sucesso!', userType});
     } catch (err) {
         res.status(500).json({erro: err.message});
@@ -38,7 +38,7 @@ router.put('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const updateUserType = await UserTypeSchema.findByIdAndUpdate(userTypeId, req.body, {new: true});
+        const updateUserType = await UserType.findByIdAndUpdate(userTypeId, req.body, {new: true});
         res.json({msg: 'tipo de usuário atualizado com sucesso!' , updateUserType});
     } catch (err) {
         res.status(500).json({erro: err.message});
@@ -52,7 +52,7 @@ router.delete('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const deletedUserType = await UserTypeSchema.findByIdAndDelete(userTypeId);
+        const deletedUserType = await UserType.findByIdAndDelete(userTypeId);
         res.json({msg: 'tipo de usuário deletado com sucesso!' , deletedUserType});
     } catch (err) {
         res.status(500).json({erro: err.message});

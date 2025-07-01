@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import OrderProductSchema from '../models/OrderProductSchema.js';
+import OrderProduct from '../models/OrderProductSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const orderProducts = await OrderProductSchema.find();
+    const orderProducts = await OrderProduct.find();
     res.json(orderProducts);
 });
 
@@ -15,7 +15,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const orderProduct = await OrderProductSchema.findById(orderProductId);
+        const orderProduct = await OrderProduct.findById(orderProductId);
         res.json(orderProduct);
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -25,7 +25,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const orderProduct = await OrderProductSchema.create(req.body);
+        const orderProduct = await OrderProduct.create(req.body);
         res.status(200).json({msg: 'encomenda de produto criada com sucesso!', orderProduct});
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -39,7 +39,7 @@ router.put('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const updateorderProduct = await OrderProductSchema.findByIdAndUpdate(orderProductId, req.body, {new: true});
+        const updateorderProduct = await OrderProduct.findByIdAndUpdate(orderProductId, req.body, {new: true});
         res.status(200).json({msg: 'encomenda atualizada com sucesso!', updateorderProduct});
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -53,7 +53,7 @@ router.delete('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const deletedOrderProduct = await OrderProductSchema.findByIdAndDelete(orderProductId, req.body, {new: true});
+        const deletedOrderProduct = await OrderProduct.findByIdAndDelete(orderProductId, req.body, {new: true});
         res.status(200).json({msg: 'encomenda deletada com sucesso!', deletedOrderProduct});
     } catch (err) {
         res.status(500).json({ erro: err.message });

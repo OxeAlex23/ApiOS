@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import ProductCategorySchema from '../models/ProductCategorySchema.js';
+import ProductCategory from '../models/ProductCategorySchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const productsCategory = await ProductCategorySchema.find();
+    const productsCategory = await ProductCategory.find();
     res.json(productsCategory);
 });
 
@@ -15,7 +15,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const productCategory = await ProductCategorySchema.findById(productCategoryId);
+        const productCategory = await ProductCategory.findById(productCategoryId);
         res.json(productCategory);
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -24,7 +24,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const productCategory = await ProductCategorySchema.create(req.body);
+        const productCategory = await ProductCategory.create(req.body);
         res.status(200).json({ msg: 'categoria de produto criada com sucesso!', productCategory });
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -38,7 +38,7 @@ router.put('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const updateProductCategory = await ProductCategorySchema.findByIdAndUpdate(productCategoryId, req.body, { new: true });
+        const updateProductCategory = await ProductCategory.findByIdAndUpdate(productCategoryId, req.body, { new: true });
         res.status(200).json({ msg: 'categoria de produto atualizada com sucesso!', updateProductCategory });
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -52,7 +52,7 @@ router.delete('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const deletedProductCategory = await ProductCategorySchema.findByIdAndDelete(productCategoryId, req.body, { new: true });
+        const deletedProductCategory = await ProductCategory.findByIdAndDelete(productCategoryId, req.body, { new: true });
         res.status(200).json({ msg: 'categoria de produto deletada com sucesso!', deletedProductCategory });
     } catch (err) {
         res.status(500).json({ erro: err.message });
