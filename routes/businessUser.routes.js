@@ -62,8 +62,31 @@ router.get('/byBusinessId/:businessId', async (req, res) => {
   }
 });
 
+router.get('/businessesByUser/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
 
+    const businesses = await BusinessUser.find({ UserId: userId })
+      .populate('BusinessId');
 
+    res.json(businesses);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+router.get('/usersByBusiness/:businessId', async (req, res) => {
+  try {
+    const businessId = req.params.businessId;
+
+    const users = await BusinessUser.find({ BusinessId: businessId })
+      .populate('UserId');
+
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
 
 router.post('/', async (req, res) => {
     try {
