@@ -23,6 +23,15 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 });
 
+router.get('/businessUserId/:businessUserId', async (req, res) => {
+    try {
+        const businessUser = await BusinessUser.find({BusinessUserId: req.params.businessUserId}).populate('BusinessId');
+        res.json(businessUser);
+    } catch (err) {
+        res.status(500).json({ erro: err.message });
+    }
+});
+
 router.post('/', async (req, res) => {
     try {
         const businessUser = await BusinessUser.create(req.body);
