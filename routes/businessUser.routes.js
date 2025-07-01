@@ -1,7 +1,8 @@
 import express from 'express';
 const router = express.Router();
 import BusinessUser from '../models/BusinessUserSchema.js';
-import authObjectId from '../middleware/authObjectId.js'
+import authObjectId from '../middleware/authObjectId.js';
+import mongoose from 'mongoose';
 
 router.get('/', async (req, res) => {
     const businessUsers = await BusinessUser.find();
@@ -23,14 +24,46 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 });
 
-router.get('/businessUserId/:businessUserId', async (req, res) => {
-    try {
-        const businessUser = await BusinessUser.find({BusinessUserId: req.params.businessUserId}).populate('BusinessId');
-        res.json(businessUser);
-    } catch (err) {
-        res.status(500).json({ erro: err.message });
-    }
+router.get('/debug/business-users', async (req, res) => {
+  try {
+    const all = await BusinessUser.find().populate('BusinessId');
+    res.json(all);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
 });
+
+
+router.get('/businessUserId/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const businessUser = await BusinessUser.find({
+      UserId: userId // funciona porque está salvo como string
+    }).populate('BusinessId');
+
+    res.json(businessUser);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+router.get('/byBusinessId/:businessId', async (req, res) => {
+  try {
+    const businessId = req.params.businessId;
+
+    const users = await BusinessUser.find({
+      BusinessId: businessId
+    }).populate('UserId');
+
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+
+
 
 router.post('/', async (req, res) => {
     try {
