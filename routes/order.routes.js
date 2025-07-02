@@ -15,7 +15,7 @@ router.get('/:id', authObjectId, async (req, res) => {
         return res.status(404).json({ msg: 'ordem não encontrada!' })
     }
     try {
-        const order = await Order.findById(orderId).populate('UserId').populate('BusinessId').populate('CustomerId');
+        const order = await Order.findById(orderId).populate('UserId').populate('BusinessId').populate('CustomerId').populate('OrderStatusId');
         res.json(order);
     } catch (err) {
         res.status(500).json({ error: err.message })
