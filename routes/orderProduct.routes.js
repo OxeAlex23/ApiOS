@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import OrderProduct from '../models/OrderProductSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
+import { calculateOrderTotal } from './calculateOrderTotal.js';
 
 router.get('/', async (req, res) => {
     const orderProducts = await OrderProduct.find();
@@ -29,6 +30,18 @@ router.post('/', async (req, res) => {
         res.status(200).json({msg: 'encomenda de produto criada com sucesso!', orderProduct});
     } catch (err) {
         res.status(500).json({ erro: err.message });
+    }
+});
+
+router.post('/order-product', async (req, res) => {
+    const {OrderId, ProductId, Quantity } = req.body;
+
+    try {
+        const orderProduct = await OrderProduct.create(OrderId, ProductId, Quantity);
+        const updateAmout = await calculateOrderTotal(OrderId);
+        res.status(201).json({ orderProduct, updateAmout  });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 

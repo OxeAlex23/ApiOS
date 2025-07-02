@@ -15,7 +15,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const service = await Services.findById(serviceId);
+        const service = await Services.findById(serviceId).populate('BusinessId');
         res.json(service);
     } catch (err) {
         res.status(500).json({ erro: err.message });

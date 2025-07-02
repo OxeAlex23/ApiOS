@@ -5,7 +5,7 @@ const OrderSchema = new mongoose.Schema({
     BusinessId: {type: mongoose.Types.ObjectId, ref: 'Business', required: true},
     OrderDateTime: {type: Date, default: Date.now},
     CustomerId: {type: mongoose.Types.ObjectId, ref: 'Customer', required: true},
-   // OrderStatusId: Number, // mudar para objectId e add ref
+    OrderStatusId: {type: mongoose.Types.ObjectId, ref: 'OrderStatus', required: true},
     TotalAmount: Number,
     DiscountAmount: Number,
     Notes: String,

@@ -21,7 +21,7 @@ router.get('/:id', authObjectId ,async (req, res) => {
     const productId = req.params.id;
 
     try {
-        const productFound = await Product.findById(productId);
+        const productFound = await Product.findById(productId).populate('BusinessId').populate('ProductCategoryId');
         if (!productFound) {
             return res.status(404).json({ msg: 'produto não encontrado!' });
         }

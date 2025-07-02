@@ -21,7 +21,7 @@ router.get('/:id', authObjectId ,async (req, res) => {
     const  userId  = req.params.id;
 
     try {
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate('BusinessId');
         if (!user) {
             return res.status(404).json({ msg: 'usuário não encontrado' });
         }
