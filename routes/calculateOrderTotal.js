@@ -7,7 +7,7 @@ export const calculateOrderTotal = async (orderId) => {
 
     let total = 0;
     orderProducts.forEach(orderProduct => {
-        const price = orderProduct.ProductId.BasePrice || 0;
+        const price = orderProduct.ProductId.UnitPrice || 0;
         const quantity = orderProduct.Quantity || 1;
         total += price * quantity;
     });

@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import Order from '../models/OrderSchema.js';
 import OrderProduct from '../models/OrderProductSchema.js'
+import { calculateOrderTotal } from './calculateOrderTotal.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
@@ -33,30 +34,41 @@ router.post('/', async (req, res) => {
     }
 });
 
-
 router.post('/order-with-products', async (req, res) => {
-    const { UserId, BusinessId, CustomerId, OrderStatusId, DiscountAmount, Notes, Products } = req.body;
+  const { UserId, BusinessId, CustomerId, OrderStatusId, DiscountAmount, Notes, Products } = req.body;
 
-    try {
+  if (!Array.isArray(Products) || Products.length === 0) {
+    return res.status(400).json({ error: '"Products" deve ser um array com pelo menos um item' });
+  }
 
-        const newOrder = await Order.create({ UserId, BusinessId, CustomerId, OrderStatusId, DiscountAmount, Notes });
+  try {
+
+    const newOrder = await Order.create({ UserId, BusinessId, CustomerId, OrderStatusId, DiscountAmount, Notes });
+
+   
+    const items = Products.map(prod => ({
+      OrderId: newOrder._id,
+      ProductId: prod.ProductId,
+      Quantity: prod.Quantity
+    }));
+
+  
+    await OrderProduct.insertMany(items);
 
 
-        const items = Products.map(prod => ({
-            OrderId: newOrder._id,
-            ProductId: prod.ProductId,
-            Quantity: prod.Quantity
-        }));
+    await calculateOrderTotal(newOrder._id);
+    console.log('Produto: ', items, 'orderId: ', newOrder._id)
 
-        await OrderProduct.insertMany(items);
+    
+    const updatedOrder = await Order.findById(newOrder._id);
 
+    res.status(201).json({ msg: 'Pedido criado com sucesso!', order: updatedOrder });
 
-        res.status(201).json({ msg: 'Pedido criado com sucesso!', orderId: newOrder._id });
-
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
 
 router.put('/:id', authObjectId, async (req, res) => {
     const orderId = req.params.id;

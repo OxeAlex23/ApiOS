@@ -5,7 +5,7 @@ import Product from './ProductSchema.js';
 const OrderProductSchema = new mongoose.Schema({
    OrderId: {type: mongoose.Types.ObjectId, ref: 'Order', required: true},
    ProductId: {type: mongoose.Types.ObjectId, ref: 'Product', required: true},
-   Quantity: Number
+   Quantity: {type: Number, default: 1}
 });
 
 
@@ -32,5 +32,12 @@ OrderProductSchema.post('findOneAndUpdate', async function (doc, next) {
   }
   next();
 });
+
+OrderProductSchema.post('insertMany', async function (docs) {
+  if (docs.length > 0) {
+    await calculateOrderTotal(docs[0].OrderId);
+  }
+});
+
 
 export default mongoose.model('OrderProduct', OrderProductSchema);
