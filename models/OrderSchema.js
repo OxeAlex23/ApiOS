@@ -7,7 +7,7 @@ const OrderSchema = new mongoose.Schema({
     CustomerId: {type: mongoose.Types.ObjectId, ref: 'Customer', required: true},
     OrderStatusId: {type: mongoose.Types.ObjectId, ref: 'OrderStatus', required: true},
     TotalAmount: {type: Number, default: 0},
-    DiscountAmount: Number,
+    DiscountAmount: {type: Number, default: 0},
     Notes: String,
     trackCode: String
 });
