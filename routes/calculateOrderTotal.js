@@ -27,11 +27,7 @@ export const calculateOrderTotal = async (orderId) => {
         }
 
 
-        const updateOrder = await Order.findByIdAndUpdate(
-            orderId,
-            { TotalAmount: applyDiscount },
-            { new: true }
-        );
+        const updateOrder = await Order.findByIdAndUpdate( orderId, { TotalAmount: applyDiscount }, { new: true } );
 
         return updateOrder;
     } catch (error) {
