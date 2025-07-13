@@ -19,4 +19,4 @@ function setupSwagger(app) {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 }
 
-module.exports = setupSwagger;
+export default setupSwagger;
