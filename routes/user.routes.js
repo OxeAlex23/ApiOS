@@ -31,6 +31,21 @@ router.get('/:id', authObjectId ,async (req, res) => {
     }
 });
 
+router.get('/userByBusiness/:businessId', async (req, res) => {
+    const { businessId } = req.params;
+
+    try {
+        const users = await User.find({ BusinessId: businessId });
+
+        if (!users || users.length === 0) {
+            return res.status(404).json({ msg: 'Nenhum usuário encontrado para este business.' });
+        }
+
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ erro: err.message });
+    }
+});
 
 router.put('/:id', authObjectId ,async (req, res) => {
   const  userId  = req.params.id;
