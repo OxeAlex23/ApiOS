@@ -22,6 +22,23 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 });
 
+router.get('/categoryBybusiness/:businessId', async (req, res) => {
+    const { businessId } = req.params;
+
+    try {
+        const categories = await ProductCategory.find({ BusinessId: businessId });
+
+        if (!categories || categories.length === 0) {
+            return res.status(404).json({ msg: 'Nenhuma categoria de produto encontrada para este business.' });
+        }
+
+        res.json(categories);
+    } catch (err) {
+        res.status(500).json({ erro: err.message });
+    }
+});
+
+
 router.post('/', async (req, res) => {
     try {
         const productCategory = await ProductCategory.create(req.body);

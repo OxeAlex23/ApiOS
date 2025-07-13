@@ -23,6 +23,23 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 });
 
+router.get('/business/:businessId', async (req, res) => {
+    const { businessId } = req.params;
+
+    try {
+        const services = await Services.find({ BusinessId: businessId }).populate('BusinessId');
+
+        if (!services || services.length === 0) {
+            return res.status(404).json({ msg: 'Nenhum serviço encontrado para este business.' });
+        }
+
+        res.json(services);
+    } catch (err) {
+        res.status(500).json({ erro: err.message });
+    }
+});
+
+
 router.post('/', async (req, res) => {
     try {
         const service = await Services.create(req.body);
