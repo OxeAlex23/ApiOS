@@ -23,7 +23,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 });
 
-router.get('/business/:businessId', async (req, res) => {
+router.get('/serviceByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;
 
     try {
