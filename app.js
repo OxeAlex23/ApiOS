@@ -16,9 +16,12 @@ import orderStatusRoutes from './routes/orderStatus.routes.js';
 import businessUserRoleRoutes from './routes/businessUserRole.routes.js';
 import businessUserRoutes from './routes/businessUser.routes.js';
 import userTypeRoutes from './routes/userType.routes.js';
+import setupSwagger from './swagger.js'
 import cors from 'cors';
 
 const app = express();
+setupSwagger(app);
+
 app.use(express.json());
 app.use(cors());
 app.use('/users', userRoutes);
