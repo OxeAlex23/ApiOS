@@ -21,7 +21,7 @@ router.get('/:id', authObjectId ,async (req, res) => {
     const productId = req.params.id;
 
     try {
-        const productFound = await Product.findById(productId).populate('ProductCategoryId').populate('BusinessId');
+        const productFound = await Product.findById(productId).populate('ProductCategoryId', 'ProductDescription -_id');
         if (!productFound) {
             return res.status(404).json({ msg: 'produto não encontrado!' });
         }
@@ -36,7 +36,7 @@ router.get('/productsByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;
 
     try {
-        const products = await Product.find({ BusinessId: businessId }).populate('ProductCategoryId');
+       const products = await Product.find({ BusinessId: businessId }).populate('ProductCategoryId', 'ProductDescription');
 
         if (!products || products.length === 0) {
             return res.status(404).json({ msg: 'Nenhum produto encontrado para este business.' });
@@ -44,7 +44,7 @@ router.get('/productsByBusiness/:businessId', async (req, res) => {
 
         res.json(products);
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ erro: "[]" });
     }
 });
 
