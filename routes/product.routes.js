@@ -39,12 +39,12 @@ router.get('/productsByBusiness/:businessId', async (req, res) => {
        const products = await Product.find({ BusinessId: businessId }).populate('ProductCategoryId', 'ProductDescription');
 
         if (!products || products.length === 0) {
-            return res.status(404).json({ msg: 'Nenhum produto encontrado para este business.' });
+            return res.status(404).json({ msg: '[]' });
         }
 
         res.json(products);
     } catch (err) {
-        res.status(500).json({ erro: "[]" });
+        res.status(500).json({ erro: err.message });
     }
 });
 
