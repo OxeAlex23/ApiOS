@@ -32,7 +32,7 @@ router.get('/:id', authObjectId ,async (req, res) => {
     }
 });
 
-router.get('/productsBybusiness/:businessId', async (req, res) => {
+router.get('/productsByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;
 
     try {
