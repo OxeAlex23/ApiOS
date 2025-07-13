@@ -32,6 +32,23 @@ router.get('/:id', authObjectId ,async (req, res) => {
     }
 });
 
+router.get('/productsBybusiness/:businessId', async (req, res) => {
+    const { businessId } = req.params;
+
+    try {
+        const products = await Product.find({ BusinessId: businessId }).populate('ProductCategoryId');
+
+        if (!products || products.length === 0) {
+            return res.status(404).json({ msg: 'Nenhum produto encontrado para este business.' });
+        }
+
+        res.json(products);
+    } catch (err) {
+        res.status(500).json({ erro: err.message });
+    }
+});
+
+
 router.put('/:id', authObjectId ,async (req, res) => {
     const productId = req.params.id;
 
