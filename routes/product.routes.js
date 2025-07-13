@@ -39,7 +39,7 @@ router.get('/productsByBusiness/:businessId', async (req, res) => {
        const products = await Product.find({ BusinessId: businessId }).populate('ProductCategoryId', 'ProductDescription');
 
         if (!products || products.length === 0) {
-            return res.status(404).json({ msg: '[]' });
+            return res.json([]);
         }
 
         res.json(products);
