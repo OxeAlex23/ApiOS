@@ -16,7 +16,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const orderProduct = await OrderProduct.findById(orderProductId).populate('OrderId', '-__v').populate('ProductId', '-__v');
+        const orderProduct = await OrderProduct.findById(orderProductId).populate('OrderId', '-__v').populate('ProductId', '-_id');
         res.json(orderProduct);
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -24,16 +24,8 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 });
 
-router.post('/', async (req, res) => {
-    try {
-        const orderProduct = await OrderProduct.create(req.body);
-        res.status(200).json({msg: 'encomenda de produto criada com sucesso!', orderProduct});
-    } catch (err) {
-        res.status(500).json({ erro: err.message });
-    }
-});
 
-router.post('/order-product', async (req, res) => {
+router.post('/', async (req, res) => {
     const {OrderId, ProductId, Quantity } = req.body;
 
     try {
