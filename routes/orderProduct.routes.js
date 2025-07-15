@@ -38,8 +38,8 @@ router.post('/order-product', async (req, res) => {
 
     try {
         const orderProduct = await OrderProduct.create({OrderId, ProductId, Quantity});
-        const updateAmout = await calculateOrderTotal(OrderId);
-        res.status(201).json({ orderProduct, updateAmout  });
+        const updateAmount = await calculateOrderTotal(OrderId);
+        res.status(201).json({ orderProduct, updateAmount  });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -52,8 +52,8 @@ router.put('/:id', authObjectId , async (req, res) => {
     }
 
     try {
-        const updateorderProduct = await OrderProduct.findByIdAndUpdate(orderProductId, req.body, {new: true});
-        res.status(200).json({msg: 'encomenda atualizada com sucesso!', updateorderProduct});
+        const updateOrderProduct = await OrderProduct.findByIdAndUpdate(orderProductId, req.body, {new: true});
+        res.status(200).json({msg: 'encomenda atualizada com sucesso!', updateOrderProduct});
     } catch (err) {
         res.status(500).json({ erro: err.message });
     }
