@@ -22,7 +22,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 });
 
-router.get('/categoryBybusiness/:businessId', async (req, res) => {
+router.get('/categoryByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;
 
     try {
@@ -36,6 +36,25 @@ router.get('/categoryBybusiness/:businessId', async (req, res) => {
     } catch (err) {
         res.status(500).json({ erro: err.message });
     }
+});
+
+router.get('/categoryBybusiness/:businessId', async (req, res) => {
+  const { businessId } = req.params;
+
+  try {
+    const categories = await ProductCategory.find({
+      BusinessId: businessId,
+      IsActive: true //  filtra apenas categorias ativas
+    });s
+
+    if (!categories || categories.length === 0) {
+      return res.status(404).json({ msg: 'Nenhuma categoria ativa encontrada para este business.' });
+    }
+
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
 });
 
 

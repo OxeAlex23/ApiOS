@@ -12,8 +12,8 @@ const userSchema = new Schema({
   EmailAddress: {type: String, unique: true, sparse: true, lowercase: true,},
   EmailVerified: Boolean,
   CPF: {type: String, unique: true, sparse: true},
-  role: { type: String, enum: ['admin', 'employee', 'client'], default: 'employee' },
-  businessId: { type: mongoose.Types.ObjectId, ref: 'Business'},
+  Role: { type: String, enum: ['admin', 'employee', 'client'], default: 'employee' },
+  BusinessId: { type: mongoose.Types.ObjectId, ref: 'Business'},
   Active: { type: Boolean, default: true },
   CreatedAt: { type: Date, default: Date.now }
 });

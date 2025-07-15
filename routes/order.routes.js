@@ -4,6 +4,7 @@ import Order from '../models/OrderSchema.js';
 import OrderProduct from '../models/OrderProductSchema.js'
 import { calculateOrderTotal } from './calculateOrderTotal.js';
 import authObjectId from '../middleware/authObjectId.js';
+import User from '../models/UserSchema.js';
 
 router.get('/', async (req, res) => {
     const orders = await Order.find();
@@ -16,7 +17,7 @@ router.get('/:id', authObjectId, async (req, res) => {
         return res.status(404).json({ msg: 'ordem não encontrada!' })
     }
     try {
-        const order = await Order.findById(orderId).populate('UserId').populate('BusinessId').populate('CustomerId').populate('OrderStatusId');
+        const order = await Order.findById(orderId).populate('UserId', 'FirstName LastName -_id').populate('BusinessId', '-__v -_id').populate('CustomerId', '-__v -_id').populate('OrderStatusId', '-_id -__v').populate('RelatedEmployees', 'EmployeeName JobTitle -_id' )
         res.json(order);
     } catch (err) {
         res.status(500).json({ error: err.message })
@@ -26,8 +27,10 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 
 router.post('/', async (req, res) => {
+  const { Title ,UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority } = req.body;
     try {
-        const order = await Order.create(req.body);
+        const order = await Order.create({Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority });
+
         res.status(200).json({ msg: 'ordem criada com sucesso!', order });
     } catch (err) {
         res.status(500).json({ erro: err.message });
@@ -35,7 +38,7 @@ router.post('/', async (req, res) => {
 });
 
 router.post('/order-with-products', async (req, res) => {
-  const { UserId, BusinessId, CustomerId, OrderStatusId, DiscountAmount, Notes, Products } = req.body;
+   const { Title ,UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority, Products } = req.body;
 
   if (!Array.isArray(Products) || Products.length === 0) {
     return res.status(400).json({ error: '"Products" deve ser um array com pelo menos um item' });
@@ -43,7 +46,7 @@ router.post('/order-with-products', async (req, res) => {
 
   try {
 
-    const newOrder = await Order.create({ UserId, BusinessId, CustomerId, OrderStatusId, DiscountAmount, Notes });
+    const newOrder = await Order.create({ Title ,UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority });
 
    
     const items = Products.map(prod => ({
@@ -68,7 +71,6 @@ router.post('/order-with-products', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 router.put('/:id', authObjectId, async (req, res) => {
     const orderId = req.params.id;

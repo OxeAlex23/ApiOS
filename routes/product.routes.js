@@ -36,7 +36,7 @@ router.get('/productsByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;
 
     try {
-       const products = await Product.find({ BusinessId: businessId }).populate('ProductCategoryId', 'ProductDescription');
+       const products = await Product.find({ BusinessId: businessId }).populate('ProductCategoryId', '-__v -BusinessId -_id -IsActive');
 
         if (!products || products.length === 0) {
             return res.json([]);
@@ -66,6 +66,7 @@ router.put('/:id', authObjectId ,async (req, res) => {
 
 router.delete('/:id', authObjectId ,async (req, res) => {
     const productDeleted = await Product.findByIdAndDelete(req.params.id);
+    
 
     if (!productDeleted) {
         return res.status(404).json({msg: 'produto não encontrado!'});
