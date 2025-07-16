@@ -29,7 +29,7 @@ router.use('/productsCategory', productCategoryRoutes);
 router.use('/ordersStatus', orderStatusRoutes);
 router.use('/businessUserRole', businessUserRoleRoutes);
 router.use('/businessUsers', businessUserRoutes);
-router.use('/usersType', userTypeRoutes);
+router.use('/userTypes', userTypeRoutes);
 router.use('/employees', employeeRoutes);
 
 export default router;

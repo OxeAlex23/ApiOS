@@ -36,7 +36,7 @@ app.use('/productsCategory', productCategoryRoutes);
 app.use('/ordersStatus', orderStatusRoutes);
 app.use('/businessUserRole', businessUserRoleRoutes);
 app.use('/businessUsers', businessUserRoutes);
-app.use('/usersType', userTypeRoutes);
+app.use('/userTypes', userTypeRoutes);
 app.use('/employees', employeeRoutes);
 
 const dbUser = process.env.DB_USER;
