@@ -27,10 +27,10 @@ router.get('/serviceByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;
 
     try {
-        const services = await Services.find({ BusinessId: businessId }).populate('BusinessId');
+        const services = await Services.find({ BusinessId: businessId }, '-__v').populate('BusinessId', 'BusinessName -_id  ');
 
         if (!services || services.length === 0) {
-            return res.status(404).json({ msg: 'Nenhum serviço encontrado para este business.' });
+            return res.status(404).json([]);
         }
 
         res.json(services);

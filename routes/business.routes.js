@@ -1,16 +1,16 @@
 import express from 'express';
 const router = express.Router();
 import Business from '../models/BusinessSchema.js';
-import authObejctId from '../middleware/authObjectId.js';
-import User from '../models/UserSchema.js';
+import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const business = await Business.find();
     res.json(business);
 });
 
-router.get('/:id', authObejctId, async (req, res) => {
+router.get('/:id', authObjectId, async (req, res) => {
     const businessId = req.params.id;
+   
 
     if (!businessId) {
         return res.status(404).json({ msg: 'businessId não encontrado!' })
@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.put('/:id', authObejctId, async (req, res) => {
+router.put('/:id', authObjectId, async (req, res) => {
     const businessUserId = req.params.id;
 
     if (!businessUserId) {
@@ -43,7 +43,7 @@ router.put('/:id', authObejctId, async (req, res) => {
     }
 });
 
-router.delete('/:id', authObejctId , async (req, res) => {
+router.delete('/:id', authObjectId , async (req, res) => {
     const businessUserId = req.params.id;
 
     if (!businessUserId) {
