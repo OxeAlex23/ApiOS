@@ -9,4 +9,4 @@ const ServicesSchema = new mongoose.Schema({
     IsActive: {type: Boolean, default: true}
 });
 
-export default mongoose.model('Services', ServicesSchema);
+export default mongoose.model('Services', ServicesSchema); // deixar o nome do model em singular
