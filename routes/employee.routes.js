@@ -27,10 +27,38 @@ router.get('/:id', async (req, res) => {
     }
 });   
 
-router.post('/', async (req, res) => {
-    const { EmployeeName, JobTitle } = req.body;
+router.get('/employeeByBusiness/:businessId', async (req, res) => {
+    const businessId = req.params.businessId;
+
+    if (!businessId) {
+        return res.status(404).json({ msg: 'ID do negócio não encontrado!' });
+    }
+
     try {
-        const employee = await Employee.create({ EmployeeName, JobTitle });
+        const employees = await Employee.find({ BusinessId: businessId }).populate('BusinessId', 'BusinessName -_id');
+
+        if (employees.length === 0) {
+            return res.status(404).json({ msg: 'Nenhum funcionário encontrado para este negócio!' });
+        }
+
+        const employeesByBusiness = employees.map(emp => ({
+            EmployeeName: emp.EmployeeName,
+            JobTitle: emp.JobTitle,
+            EmployeeImgUrl: emp.EmployeeImgUrl,
+            BusinessName: emp.BusinessId?.BusinessName // opcional se populado
+        }));
+
+        res.json(employeesByBusiness);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+router.post('/', async (req, res) => {
+    const { EmployeeName, JobTitle, EmployeeImgUrl } = req.body;
+    try {
+        const employee = await Employee.create({ EmployeeName, JobTitle, EmployeeImgUrl });
         res.status(201).json({ msg: 'Funcionário criado com sucesso!', employee });
     } catch (err) {
         res.status(500).json({ error: err.message });
