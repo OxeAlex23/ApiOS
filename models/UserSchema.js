@@ -13,7 +13,7 @@ const userSchema = new Schema({
   EmailVerified: Boolean,
   CPF: {type: String, unique: true, sparse: true},
   Role: { type: String, enum: ['admin', 'employee', 'client'], default: 'employee' },
-  BusinessId: { type: mongoose.Types.ObjectId, ref: 'Business'},
+  BusinessId: { type: mongoose.Types.ObjectId, ref: 'Business', default: undefined },
   Active: { type: Boolean, default: true },
   CreatedAt: { type: Date, default: Date.now }
 });
