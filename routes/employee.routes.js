@@ -45,7 +45,7 @@ router.get('/employeeByBusiness/:businessId', async (req, res) => {
             EmployeeName: emp.EmployeeName,
             JobTitle: emp.JobTitle,
             EmployeeImgUrl: emp.EmployeeImgUrl,
-            BusinessName: emp.BusinessId?.BusinessName // opcional se populado
+            BusinessName: emp.BusinessId?.BusinessName 
         }));
 
         res.json(employeesByBusiness);
@@ -56,9 +56,9 @@ router.get('/employeeByBusiness/:businessId', async (req, res) => {
 
 
 router.post('/', async (req, res) => {
-    const { EmployeeName, JobTitle, EmployeeImgUrl } = req.body;
+    const { EmployeeName, JobTitle, EmployeeImgUrl, BusinessId } = req.body;
     try {
-        const employee = await Employee.create({ EmployeeName, JobTitle, EmployeeImgUrl });
+        const employee = await Employee.create({ EmployeeName, JobTitle, EmployeeImgUrl, BusinessId });
         res.status(201).json({ msg: 'Funcionário criado com sucesso!', employee });
     } catch (err) {
         res.status(500).json({ error: err.message });

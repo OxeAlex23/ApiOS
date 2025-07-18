@@ -15,9 +15,10 @@ router.get('/:id', authObjectId, async (req, res) => {
     if (!businessId) {
         return res.status(404).json({ msg: 'businessId não encontrado!' })
     }
-    const business = await Business.find();
+    const business = await Business.find().populate('UserId', 'FirstName LastName -_id');
     res.json(business);
 });
+
 
 router.post('/', async (req, res) => {
     try {
