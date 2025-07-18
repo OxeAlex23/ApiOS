@@ -33,8 +33,8 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
     try {
         const order = await Order.findById(orderId).populate('UserId', 'FirstName LastName -_id')
-        .populate('BusinessId', '-__v -_id')
-        .populate('CustomerId', '-__v -_id')
+        .populate('BusinessId', 'BusinessName -_id')
+        .populate('CustomerId', '-__v -BusinessId -_id')
         .populate('OrderStatusId', '-_id -__v')
         .populate('RelatedEmployees', 'EmployeeName JobTitle -_id' )
 

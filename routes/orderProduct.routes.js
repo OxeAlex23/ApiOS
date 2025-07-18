@@ -16,8 +16,9 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const orderProduct = await OrderProduct.findById(orderProductId).populate('OrderId', '-__v').populate('ProductId', '-_id');
-        res.json(orderProduct);
+        const orderProduct = await OrderProduct.findById(orderProductId).populate('OrderId', 'Title TotalAmount trackCode -_id').populate('ProductId', 'ProductName ProductDescription  UnitPrice -_id');
+        
+        res.json(orderProduct, '-__v');
     } catch (err) {
         res.status(500).json({ erro: err.message });
     }

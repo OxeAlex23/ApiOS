@@ -17,7 +17,7 @@ router.get('/:id', async (req, res) => {
         return res.status(404).json({ msg: 'Funcionário não encontrado!' });
     }
     try {
-        const employee = await Employee.findById(employeeId, '-__v');
+        const employee = await Employee.findById(employeeId, '-__v').populate('BusinessId', 'BusinessName -_id');
         if (!employee) {
             return res.status(404).json({ msg: 'Funcionário não encontrado!' });
         }
