@@ -15,13 +15,33 @@ router.get('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const orderStatus = await OrderStatus.findById(orderStatusId);
+        const orderStatus = await OrderStatus.findById(orderStatusId, '-__v').populate('BusinessId', 'BusinessName -_id');
         res.json(orderStatus);
     } catch (err) {
         res.status(500).json({ erro: err.message });
     }
 
 });
+
+router.get('/statusByBusiness/:businessId', async (req, res) => {
+    const businessId = req.params.businessId;
+
+    if (!businessId) {
+        return res.status(404).json([]);
+    }
+
+    try {
+        const statusByBusiness = await OrderStatus.find({BusinessId: businessId}, '-__v').populate('BusinessId', 'BusinessName -_id')
+        if (!statusByBusiness) {
+            return res.status(404).json({ msg: 'vazio' });
+        }
+
+        res.status(200).json(statusByBusiness);
+
+    } catch (err) {
+        res.status(500).json({erro: err.message})
+    }
+})
 
 router.post('/', async (req, res) => {
     try {
@@ -48,7 +68,7 @@ router.put('/:id', authObjectId, async (req, res) => {
 
 });
 
-router.put('/:id', authObjectId, async (req, res) => {
+router.delete('/:id', authObjectId, async (req, res) => {
     const orderStatusId = req.params.id;
     if (!orderStatusId) {
         return res.status(404).json({ msg: 'status de pedido não encontrado!' });
