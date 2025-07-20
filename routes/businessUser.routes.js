@@ -51,8 +51,9 @@ router.get('/usersByBusiness/:businessId', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+    const {UserId, BusinessId} = req.body;
     try {
-        const businessUser = await BusinessUser.create(req.body);
+        const businessUser = await BusinessUser.create({UserId, BusinessId});
         res.status(200).json({msg: 'usuário business criado com sucesso!' , businessUser});
     } catch (err) {
         res.status(500).json({ erro: err.message });
