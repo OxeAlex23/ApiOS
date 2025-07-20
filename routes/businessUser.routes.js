@@ -29,10 +29,8 @@ router.get('/businessesByUser/:userId', async (req, res) => {
     const userId = req.params.userId;
 
     const businesses = await BusinessUser.find({ UserId: userId })
-      .populate('BusinessId', 'BusinessName');
-
-    res.json(businesses.map(b => ({ BusinessId: b.BusinessId._id})));
-    
+      .populate('BusinessId', 'BusinessName -_id');
+    res.json(businesses.map(b => ({BusinessId: b.BusinessId})))   
 
   } catch (err) {
     res.status(500).json({ erro: err.message });
@@ -45,8 +43,8 @@ router.get('/usersByBusiness/:businessId', async (req, res) => {
 
     const users = await BusinessUser.find({ BusinessId: businessId })
       .populate('UserId', '-_id ');
-
-    res.json(users);
+    res.json(users.map(u => ({UserId: u.UserId}))) 
+   // res.json(users);
   } catch (err) {
     res.status(500).json({ erro: err.message });
   }
