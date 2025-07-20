@@ -44,7 +44,7 @@ router.get('/usersByBusiness/:businessId', async (req, res) => {
     const users = await BusinessUser.find({ BusinessId: businessId })
       .populate('UserId', '-_id ');
     res.json(users.map(u => ({UserId: u.UserId}))) 
-   // res.json(users);
+
   } catch (err) {
     res.status(500).json({ erro: err.message });
   }
