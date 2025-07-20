@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
 
             const businessUser = await BusinessUser.create({ UserId, BusinessId });
 
-            res.status(200).json({ msg: 'businessUser criado com sucesso!', business , businessUser });
+            res.status(200).json({ msg: 'business e businessUser criados com sucesso!', business , businessUser });
         }
 
     } catch (err) {
