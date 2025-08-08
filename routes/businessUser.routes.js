@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', authObjectId, async (req, res) => {
     const businessUserId = req.params.id;
     if (!businessUserId) {
-        return res.status(404).json({ msg: 'usuário business não encontrado!' });
+        return res.status(404).json({ msg: 'businessUser Not Found!' });
     }
 
     try {
@@ -19,7 +19,7 @@ router.get('/:id', authObjectId, async (req, res) => {
             .populate('BusinessId', 'BusinessName -_id');
         res.json(businessUser);
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 
 });
@@ -33,7 +33,7 @@ router.get('/businessesByUser/:userId', async (req, res) => {
     res.json(businesses.map(b => ({BusinessId: b.BusinessId})))   
 
   } catch (err) {
-    res.status(500).json({ erro: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -46,7 +46,7 @@ router.get('/usersByBusiness/:businessId', async (req, res) => {
     res.json(users.map(u => ({UserId: u.UserId}))) 
 
   } catch (err) {
-    res.status(500).json({ erro: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -54,9 +54,9 @@ router.post('/', async (req, res) => {
     const {UserId, BusinessId} = req.body;
     try {
         const businessUser = await BusinessUser.create({UserId, BusinessId});
-        res.status(200).json({msg: 'usuário business criado com sucesso!' , businessUser});
+        res.status(200).json({msg: 'businessUser created successfully!' , businessUser});
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 
 });
@@ -64,14 +64,14 @@ router.post('/', async (req, res) => {
 router.put('/:id', authObjectId, async (req, res) => {
     const businessUserId = req.params.id;
     if (!businessUserId) {
-        return res.status(404).json({ msg: 'usuário business não encontrado!' });
+        return res.status(404).json({ msg: 'businessUser Not Found!' });
     }
 
     try {
         const updateBusinessUser = await BusinessUser.findByIdAndUpdate(businessUserId, req.body, {new: true});
-        res.status(200).json({msg: 'usuário business atualizado com sucesso!' , updateBusinessUser});
+        res.status(200).json({msg: 'businessUser updated successfully!' , updateBusinessUser});
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 
 });
@@ -79,14 +79,14 @@ router.put('/:id', authObjectId, async (req, res) => {
 router.delete('/:id', authObjectId, async (req, res) => {
     const businessUserId = req.params.id;
     if (!businessUserId) {
-        return res.status(404).json({ msg: 'usuário business não encontrado!' });
+        return res.status(404).json({ msg: 'businessUser Not Found!' });
     }
 
     try {
         const deletedBusinessUser = await BusinessUser.findByIdAndDelete(businessUserId);
-        res.status(200).json({msg: 'usuário business deletado com sucesso!' , deletedBusinessUser});
+        res.status(200).json({msg: 'businessUser deleted successfully!' , deletedBusinessUser});
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 
 });

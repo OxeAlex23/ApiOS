@@ -11,14 +11,14 @@ router.get('/', async (req, res) => {
 router.get('/:id', authObjectId, async (req, res) => {
     const productCategoryId = req.params.id;
     if (!productCategoryId) {
-        return res.status(404).json({ msg: 'categoria de produto não encontrada!' });
+        return res.status(404).json({ msg: 'productCategory Not Found!' });
     }
 
     try {
         const productCategory = await ProductCategory.findById(productCategoryId);
         res.json(productCategory);
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -29,31 +29,31 @@ router.get('/categoryByBusiness/:businessId', async (req, res) => {
         const categories = await ProductCategory.find({ BusinessId: businessId });
 
         if (!categories || categories.length === 0) {
-            return res.status(404).json({ msg: 'Nenhuma categoria de produto encontrada para este business.' });
+            return res.status(404).json({ msg: 'No product categories found for this business!' });
         }
 
         res.json(categories);
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
-router.get('/categoryBybusiness/:businessId', async (req, res) => {
+router.get('/categoryByBusiness/:businessId', async (req, res) => {
   const { businessId } = req.params;
 
   try {
     const categories = await ProductCategory.find({
       BusinessId: businessId,
-      IsActive: true //  filtra apenas categorias ativas
+      IsActive: true 
     });s
 
     if (!categories || categories.length === 0) {
-      return res.status(404).json({ msg: 'Nenhuma categoria ativa encontrada para este business.' });
+      return res.status(404).json({ msg: 'No active categories found for this business!' });
     }
 
     res.json(categories);
   } catch (err) {
-    res.status(500).json({ erro: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -61,37 +61,37 @@ router.get('/categoryBybusiness/:businessId', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const productCategory = await ProductCategory.create(req.body);
-        res.status(200).json({ msg: 'categoria de produto criada com sucesso!', productCategory });
+        res.status(200).json({ msg: 'ProductCategory created successfully!', productCategory });
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
 router.put('/:id', authObjectId, async (req, res) => {
     const productCategoryId = req.params.id;
     if (!productCategoryId) {
-        return res.status(404).json({ msg: 'categoria de produto não encontrada!' });
+        return res.status(404).json({ msg: 'ProductCategory Not Found!' });
     }
 
     try {
         const updateProductCategory = await ProductCategory.findByIdAndUpdate(productCategoryId, req.body, { new: true });
-        res.status(200).json({ msg: 'categoria de produto atualizada com sucesso!', updateProductCategory });
+        res.status(200).json({ msg: 'ProductCategory updated successfully!', updateProductCategory });
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
 router.delete('/:id', authObjectId, async (req, res) => {
     const productCategoryId = req.params.id;
     if (!productCategoryId) {
-        return res.status(404).json({ msg: 'categoria de produto não encontrada!' });
+        return res.status(404).json({ msg: 'ProductCategory Not Found!' });
     }
 
     try {
         const deletedProductCategory = await ProductCategory.findByIdAndDelete(productCategoryId, req.body, { new: true });
-        res.status(200).json({ msg: 'categoria de produto deletada com sucesso!', deletedProductCategory });
+        res.status(200).json({ msg: 'ProductCategory deleted successfully!', deletedProductCategory });
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 

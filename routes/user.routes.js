@@ -9,9 +9,9 @@ router.post('/', async (req, res) => {
         const user = await User.create({
             UserTypeId, FirstName, LastName, UserImgUrl, PhoneNumber, PhoneVerified, EmailAddress, EmailVerified, CPF, Role, BusinessId
         });
-        res.status(200).json({ msg: 'usuário criado com sucesso!', user });
+        res.status(200).json({ msg: 'user created successfully!', user });
     } catch (err) {
-        res.status(400).json({ erro: err.message });
+        res.status(400).json({ error: err.message });
     }
 });
 
@@ -27,7 +27,7 @@ router.get('/:id', authObjectId ,async (req, res) => {
         const user = await User.findById(userId).populate('BusinessId', 'BusinessName -_id');
          console.log(user);
         if (!user) {
-            return res.status(404).json({ msg: 'usuário não encontrado' });
+            return res.status(404).json({ msg: 'user Not Found!' });
         }
         res.json(user);
     } catch (err) {
@@ -42,7 +42,7 @@ router.put('/:id', authObjectId ,async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true });
     if (!updatedUser) {
-      return res.status(404).json({ msg: 'Usuário não encontrado' });
+      return res.status(404).json({ msg: 'user Not Found!' });
     }
     res.status(200).json(updatedUser);
   } catch (err) {
@@ -55,9 +55,9 @@ router.delete('/:id', authObjectId ,async (req, res) => {
     const userDeleted = await User.findByIdAndDelete(req.params.id);
 
     if (!userDeleted) {
-        res.status(404).json({ msg: 'usuário não encontrado!' })
+        res.status(404).json({ msg: 'user Not Found!' })
     }
-    res.status(200).json({ msg: 'usuário deletado com sucesso!' });
+    res.status(200).json({ msg: 'user deleted successfully!' });
 });
 
 export default router;

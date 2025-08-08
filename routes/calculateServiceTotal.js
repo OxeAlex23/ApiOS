@@ -3,16 +3,16 @@ import Order from '../models/OrderSchema.js';
 
 export const calculateServiceTotal = async (orderId) => {
     try {
-        const orderSevices = await OrderService.find({ OrderId: orderId }).populate('ServiceId');
+        const orderServices = await OrderService.find({ OrderId: orderId }).populate('ServiceId');
         const order = await Order.findOne(orderId);
         if (!order) {
-            throw new Error('Ordem não encontrada');
+            throw new Error('Order Not Found');
         }
 
          const discount = order.DiscountAmount || 0;
 
          let total = 0;
-        orderSevices.forEach(orderService => {
+        orderServices.forEach(orderService => {
            const price = orderService.ServiceId?.BasePrice || 0;
             const quantity = orderService.Quantity || 1;
             total += price * quantity;
@@ -27,7 +27,7 @@ export const calculateServiceTotal = async (orderId) => {
          const updateOrder = await Order.findByIdAndUpdate( orderId,{ TotalAmount: applyDiscount },{ new: true } );
          return updateOrder;
     } catch (err) {
-        console.error('Erro ao calcular total da ordem:', err);
+        console.error('Error calculating order total: ', err);
         throw err;
     }
 }

@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
 router.get('/ordersByBusiness/:businessId', async (req, res) => {
     const businessId = req.params.businessId; 
     if (!businessId) {
-        return res.status(404).json({ msg: 'ID de negócio não encontrado!' });
+        return res.status(404).json({ msg: 'business Not Found!' });
     }   
     try {
         const orders = await Order.find({ BusinessId: businessId });
@@ -29,7 +29,7 @@ router.get('/ordersByBusiness/:businessId', async (req, res) => {
 router.get('/:id', authObjectId, async (req, res) => {
     const orderId = req.params.id;
     if (!orderId) {
-        return res.status(404).json({ msg: 'ordem não encontrada!' })
+        return res.status(404).json({ msg: 'order Not Found!' })
     }
     try {
         const order = await Order.findById(orderId).populate('UserId', 'FirstName LastName -_id')
@@ -48,11 +48,11 @@ router.get('/:id', authObjectId, async (req, res) => {
 router.post('/', async (req, res) => {
     const { Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority } = req.body;
     if (!Title || !UserId || !BusinessId || !CustomerId || !OrderStatusId) {
-        return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
+        return res.status(400).json({ error: 'All required fields must be completed!' });
     }   
     try {
         const order = await Order.create({ Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority });
-        res.status(201).json({ msg: 'Pedido criado com sucesso!', order });
+        res.status(201).json({ msg: 'order created successfully!', order });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -71,7 +71,7 @@ router.post('/', async (req, res) => {
     
     const updatedOrder = await Order.findById(newOrder._id);
 
-    res.status(201).json({ msg: 'Pedido criado com sucesso!', order: updatedOrder });
+    res.status(201).json({ msg: 'order crated successfully!', order: updatedOrder });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -81,28 +81,28 @@ router.post('/', async (req, res) => {
 router.put('/:id', authObjectId, async (req, res) => {
     const orderId = req.params.id;
     if (!orderId) {
-        return res.status(404).json({ msg: 'ordem não encontrada!' });
+        return res.status(404).json({ msg: 'order Not Found!' });
     }
 
     try {
         const updateOrder = await Order.findByIdAndUpdate(orderId, req.body, { new: true });
-        res.status(200).json({ msg: 'ordem atualizada com sucesso!', updateOrder });
+        res.status(200).json({ msg: 'order updated successfully!', updateOrder });
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
 router.delete('/:id', authObjectId, async (req, res) => {
     const orderId = req.params.id;
     if (!orderId) {
-        return res.status(404).json({ msg: 'ordem não encontrada!' });
+        return res.status(404).json({ msg: 'order Not Found!' });
     }
 
     try {
         const deletedOrder = await Order.findByIdAndDelete(orderId);
-        res.status(200).json({ msg: 'ordem deletada com sucesso!', deletedOrder });
+        res.status(200).json({ msg: 'order deleted successfully!', deletedOrder });
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 

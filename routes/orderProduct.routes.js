@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', authObjectId, async (req, res) => {
     const orderProductId = req.params.id;
     if (!orderProductId) {
-        return res.status(404).json({ msg: 'encomenda de produto não encontrado!' });
+        return res.status(404).json({ msg: 'orderProduct Not Found!' });
     }
 
     try {
@@ -20,7 +20,7 @@ router.get('/:id', authObjectId, async (req, res) => {
         
         res.json(orderProduct, '-__v');
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 
 });
@@ -41,28 +41,28 @@ router.post('/', async (req, res) => {
 router.put('/:id', authObjectId , async (req, res) => {
     const orderProductId = req.params.id;
     if (!orderProductId) {
-        return res.status(404).json({ msg: 'encomenda de produto não encontrado!' });
+        return res.status(404).json({ msg: 'orderProduct Not Found!' });
     }
 
     try {
         const updateOrderProduct = await OrderProduct.findByIdAndUpdate(orderProductId, req.body, {new: true});
-        res.status(200).json({msg: 'encomenda atualizada com sucesso!', updateOrderProduct});
+        res.status(200).json({msg: 'orderProduct updated successfully!', updateOrderProduct});
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
 router.delete('/:id', authObjectId , async (req, res) => {
     const orderProductId = req.params.id;
     if (!orderProductId) {
-        return res.status(404).json({ msg: 'encomenda de produto não encontrado!' });
+        return res.status(404).json({ msg: 'orderProduct Not Found!' });
     }
 
     try {
         const deletedOrderProduct = await OrderProduct.findByIdAndDelete(orderProductId, req.body, {new: true});
-        res.status(200).json({msg: 'encomenda deletada com sucesso!', deletedOrderProduct});
+        res.status(200).json({msg: 'orderProduct deleted successfully!', deletedOrderProduct});
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 

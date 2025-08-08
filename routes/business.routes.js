@@ -14,7 +14,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 
     if (!businessId) {
-        return res.status(404).json({ msg: 'businessId não encontrado!' })
+        return res.status(404).json({ msg: 'Business Not Found!' })
     }
     const business = await Business.findById(businessId).populate('UserId', 'FirstName LastName -_id');
     res.json(business);
@@ -32,11 +32,11 @@ router.post('/', async (req, res) => {
 
             const businessUser = await BusinessUser.create({ UserId, BusinessId });
 
-            res.status(200).json({ msg: 'business e businessUser criados com sucesso!', business , businessUser });
+            res.status(200).json({ msg: 'business and businessUser created successfully!', business , businessUser });
         }
 
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -44,14 +44,14 @@ router.put('/:id', authObjectId, async (req, res) => {
     const businessUserId = req.params.id;
 
     if (!businessUserId) {
-        return res.status(404).json({ msg: 'usuario business não encontrado!', businessUserId });
+        return res.status(404).json({ msg: ' businessUSer Not Found!', businessUserId });
     }
 
     try {
         const updateBusinessUser = await Business.findByIdAndUpdate(businessUserId, req.body, { new: true });
-        res.status(200).json({ msg: 'usuario business atualizado com sucesso!', updateBusinessUser })
+        res.status(200).json({ msg: 'businessUser updated successfully!', updateBusinessUser })
     } catch (err) {
-        res.status(500).json({ erro: err.message })
+        res.status(500).json({ error: err.message })
     }
 });
 
@@ -59,14 +59,14 @@ router.delete('/:id', authObjectId, async (req, res) => {
     const businessUserId = req.params.id;
 
     if (!businessUserId) {
-        return res.status(404).json({ msg: 'usuário business não encontrado!' });
+        return res.status(404).json({ msg: 'businessUser Not Found!' });
     }
 
     try {
         const deleteBusinessUser = await Business.findByIdAndDelete(businessUserId);
-        res.status(200).json({ msg: 'usuário business deletado com sucesso!', deleteBusinessUser });
+        res.status(200).json({ msg: 'businessUser deleted successfully!', deleteBusinessUser });
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 })
 export default router;

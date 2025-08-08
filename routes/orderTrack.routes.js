@@ -4,59 +4,59 @@ import OrderTrack from '../models/OrderTrackSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const orderstracks = await OrderTrack.find();
-    res.json(orderstracks);
+    const orderTracks = await OrderTrack.find();
+    res.json(orderTracks);
 });
 
 router.get('/:id', authObjectId, async (req, res) => {
     const orderTrackId = req.params.id;
     if (!orderTrackId) {
-        return res.status(404).json({ msg: 'id de acompanhamento de pedidos não encontrado!' });
+        return res.status(404).json({ msg: 'orderTrack Not Found!' });
     }
 
     try {
-        const ordertrack = await OrderTrack.findById(orderTrackId);
-        res.json(ordertrack);
+        const orderTrack = await OrderTrack.findById(orderTrackId);
+        res.json(orderTrack);
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 
 });
 
 router.post('/', async (req, res) => {
     try {
-        const ordertrack = await OrderTrack.create(req.body);
-        res.status(200).json({msg: 'acompanhamento de pedidos criado com sucesso!', ordertrack})
+        const orderTrack = await OrderTrack.create(req.body);
+        res.status(200).json({msg: 'orderTrack created successfully!', orderTrack})
     } catch (err) {
-        res.status(500).json({ erro: err.message })
+        res.status(500).json({ error: err.message })
     }
 });
 
 router.put('/:id', authObjectId , async (req, res) => {
     const orderTrackId = req.params.id;
     if (!orderTrackId) {
-        return res.status(404).json({ msg: 'id de acompanhamento de pedidos não encontrado!' });
+        return res.status(404).json({ msg: 'orderTrack Not Found!' });
     }
 
     try {
         const updatedOrderTrack = await OrderTrack.findByIdAndUpdate(orderTrackId, req.body, {new: true});
-        res.status(200).json({msg: 'acompanhamento de pedidos atualizado com sucesso!', updatedOrderTrack});
+        res.status(200).json({msg: 'orderTrack updated successfully!', updatedOrderTrack});
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
 router.delete('/:id', authObjectId , async (req, res) => {
     const orderTrackId = req.params.id;
     if (!orderTrackId) {
-        return res.status(404).json({ msg: 'id de acompanhamento de pedidos não encontrado!' });
+        return res.status(404).json({ msg: 'orderTrack Not Found!' });
     }
 
     try {
         const deletedOrderTrack = await OrderTrack.findByIdAndDelete(orderTrackId);
-        res.status(200).json({msg: ' acompanhamento de pedidos deletado com sucesso!', deletedOrderTrack});
+        res.status(200).json({msg: 'orderTrack deleted successfully!', deletedOrderTrack});
     } catch (err) {
-       res.status(500).json({ erro: err.message });
+       res.status(500).json({ error: err.message });
     }
 })
 

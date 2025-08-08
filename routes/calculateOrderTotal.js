@@ -9,7 +9,7 @@ export const calculateOrderTotal = async (orderId) => {
 
         const order = await Order.findById(orderId);
         if (!order) {
-            throw new Error('Ordem não encontrada');
+            throw new Error('Order Not Found');
         }
 
         const discount = order.DiscountAmount || 0;
@@ -31,7 +31,7 @@ export const calculateOrderTotal = async (orderId) => {
 
         return updateOrder;
     } catch (error) {
-        console.error('Erro ao calcular total da ordem:', error);
+        console.error('Error calculating order total: ', error);
         throw error;
     }
 };

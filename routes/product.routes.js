@@ -6,9 +6,9 @@ import authObjectId from '../middleware/authObjectId.js';
 router.post('/', async (req, res) => {
     try {
         const product = await Product.create(req.body);
-        res.status(200).json({msg: 'produdo criado com sucesso!', product });
+        res.status(200).json({msg: 'product created successfully!', product });
     } catch (err) {
-        res.status(400).json({err: err.message});
+        res.status(400).json({error: err.message});
     }
 })
 
@@ -23,12 +23,12 @@ router.get('/:id', authObjectId ,async (req, res) => {
     try {
         const productFound = await Product.findById(productId).populate('BusinessId', 'BusinessName -_id').populate('ProductCategoryId', 'ProductCategoryDesc -_id');
         if (!productFound) {
-            return res.status(404).json({ msg: 'produto não encontrado!' });
+            return res.status(404).json({ msg: 'product Not Found!' });
         }
 
         res.json(productFound);
     } catch (err) {
-        res.status(400).json({erro: err.message});
+        res.status(400).json({error: err.message});
     }
 });
 
@@ -44,7 +44,7 @@ router.get('/productsByBusiness/:businessId', async (req, res) => {
 
         res.json(products);
     } catch (err) {
-        res.status(500).json({ erro: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -55,12 +55,12 @@ router.put('/:id', authObjectId ,async (req, res) => {
     try {
         const updateProduct = await Product.findByIdAndUpdate(productId, req.body, {new:  true});
         if (!updateProduct) {
-            return res.status(404).json({ msg: 'produto não encontrado' });
+            return res.status(404).json({ msg: 'product Not Found!' });
         }
 
         res.json(updateProduct);
     } catch (err) {
-        res.status(400).json({erro: err.message});
+        res.status(400).json({error: err.message});
     }
 });
 
@@ -69,10 +69,10 @@ router.delete('/:id', authObjectId ,async (req, res) => {
     
 
     if (!productDeleted) {
-        return res.status(404).json({msg: 'produto não encontrado!'});
+        return res.status(404).json({msg: 'product Not Found!'});
     }
 
-    res.status(200).json({msg: 'produto deletado com sucesso!', productDeleted});
+    res.status(200).json({msg: 'product deleted successfully!', productDeleted});
 });
 
 export default router;
