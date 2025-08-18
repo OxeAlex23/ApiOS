@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 const BusinessSchema = new mongoose.Schema({
     UserId: {type: String, required: true, ref: 'User'},
     BusinessName: {type: String, required: true},
-    LogoImgUrl: String,
+    LogoImgUrl: { data: Buffer, contentType: String },
     Address: String,
     City: String,
     State: String,
-    PhoneNumber: {type: Number, required: true},
+    PhoneNumber: {type: String, required: true},
     EmailAddress: {type: String, required: true},
     Description: String,
     AreaId: Number,
