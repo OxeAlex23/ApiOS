@@ -70,18 +70,39 @@ router.get("/:id/logo", async (req, res) => {
     }
 })
 
-router.put('/:id', authObjectId, async (req, res) => {
-    const businessUserId = req.params.id;
-
-    if (!businessUserId) {
-        return res.status(404).json({ msg: ' businessUSer Not Found!', businessUserId });
-    }
-
+router.put('/:id', uploadImgs.single("logo"), async (req, res) => {
     try {
-        const updateBusinessUser = await Business.findByIdAndUpdate(businessUserId, req.body, { new: true });
-        res.status(200).json({ msg: 'businessUser updated successfully!', updateBusinessUser })
+        const businessId = req.params.id;
+        const business = await Business.findById(businessId);
+        if (!business) return res.status(404).json({ error: "Business not found" });
+
+        const { BusinessName, Address, City, State, PhoneNumber, EmailAddress, Description, AreaId } = req.body;
+
+        if (BusinessName) business.BusinessName = BusinessName;
+        if (Address) business.Address = Address;
+        if (City) business.City = City;
+        if (State) business.State = State;
+        if (PhoneNumber) business.PhoneNumber = PhoneNumber;
+        if (EmailAddress) business.EmailAddress = EmailAddress;
+        if (Description) business.Description = Description;
+        if (AreaId) business.AreaId = AreaId;
+
+
+        if (req.file) {
+            const resizedImg = await sharp(req.file.buffer)
+                .resize(300)
+                .webp({ quality: 80 })
+                .toBuffer();
+
+            business.LogoImgUrl = { data: resizedImg, contentType: "image/webp" };
+        }
+
+        await business.save();
+
+        res.status(200).json({ msg: "Business updated successfully!", business });
+
     } catch (err) {
-        res.status(500).json({ error: err.message })
+        res.status(500).json({ error: err.message });
     }
 });
 
