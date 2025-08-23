@@ -9,10 +9,12 @@ const userSchema = new Schema({
   UserImgUrl: String,
   PhoneNumber: String,
   PhoneVerified: Boolean,
-  EmailAddress: {type: String, unique: true, sparse: true, lowercase: true,},
+  EmailAddress: { type: String, unique: true, sparse: true, lowercase: true, },
   EmailVerified: Boolean,
-  CPF: {type: String, unique: true, sparse: true},
+  CPF: { type: String, unique: true, sparse: true },
   Role: { type: String, enum: ['admin', 'employee', 'client'], default: 'employee' },
+  Password: { type: String },
+  GoogleId: { type: String },
   Active: { type: Boolean, default: true },
   CreatedAt: { type: Date, default: Date.now }
 });
