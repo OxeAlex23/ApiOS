@@ -7,21 +7,7 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const {
-      UserTypeId,
-      FirstName,
-      LastName,
-      UserImgUrl,
-      PhoneNumber,
-      PhoneVerified,
-      EmailAddress,
-      EmailVerified,
-      CPF,
-      Role,
-      Password,
-      GoogleId,
-      BusinessId
-    } = req.body;
+    const { UserTypeId, FirstName, LastName, UserImgUrl, PhoneNumber, PhoneVerified, EmailAddress, EmailVerified, CPF, Role, Password, GoogleId, BusinessId } = req.body;
 
     let user = await User.findOne({ EmailAddress });
     if (GoogleId) {
