@@ -82,7 +82,7 @@ router.post("/", async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-    const users = await User.find();
+    const users = await User.find().select('-Password');
     res.json(users);
 });
 
@@ -90,8 +90,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     const userId = req.params.id;
 
     try {
-        const user = await User.findById(userId).populate('BusinessId', 'BusinessName -_id');
-        console.log(user);
+        const user = await User.findById(userId, '-Password');
         if (!user) {
             return res.status(404).json({ msg: 'user Not Found!' });
         }
@@ -107,6 +106,24 @@ router.put('/:id', authObjectId, async (req, res) => {
 
     try {
         const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true });
+        if (!updatedUser) {
+            return res.status(404).json({ msg: 'user Not Found!' });
+        }
+        res.status(200).json(updatedUser);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.patch('/:id', authObjectId, async (req, res) => {
+    const userId = req.params.id;
+    const { Password } = req.body;
+
+    try {
+        const salt = 10;
+        const hashPassword = await bcrypt.hash(Password, salt);
+
+        const updatedUser = await User.findByIdAndUpdate(userId, { Password: hashPassword }, { new: true });
         if (!updatedUser) {
             return res.status(404).json({ msg: 'user Not Found!' });
         }
