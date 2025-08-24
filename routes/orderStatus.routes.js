@@ -55,12 +55,12 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', authObjectId, async (req, res) => {
     const orderStatusId = req.params.id;
-    if (!orderStatusId) {
-        return res.status(404).json({ msg: 'orderStatus Not Found!' });
-    }
 
     try {
         const orderStatus = await OrderStatus.findByIdAndUpdate(orderStatusId, req.body, {new: true});
+         if (!orderStatus) {
+            return res.status(404).json({ msg: 'orderStatus not found!' });
+        }
         res.status(200).json({msg: 'orderStatus updated successfully!', orderStatus});
     } catch (err) {
         res.status(500).json({ error: err.message });
