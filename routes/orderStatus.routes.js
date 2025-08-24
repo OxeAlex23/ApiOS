@@ -44,8 +44,10 @@ router.get('/statusByBusiness/:businessId', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
+    const { OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder } = req.body
     try {
-        const orderStatus = await OrderStatus.create(req.body);
+        const orderStatus = await OrderStatus.create({ OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder } );
+
         res.status(200).json({msg: 'orderStatus created successfully!', orderStatus});
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -55,9 +57,10 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', authObjectId, async (req, res) => {
     const orderStatusId = req.params.id;
+    const { OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder } = req.body;
 
     try {
-        const orderStatus = await OrderStatus.findByIdAndUpdate(orderStatusId, req.body, {new: true});
+        const orderStatus = await OrderStatus.findByIdAndUpdate(orderStatusId, { OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder }, {new: true});
          if (!orderStatus) {
             return res.status(404).json({ msg: 'orderStatus not found!' });
         }
