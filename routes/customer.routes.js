@@ -13,14 +13,14 @@ router.get('/', async (req, res) => {
 
 });
 
-router.get('/customerId/:id', authObjectId, async (req, res) => {
+router.get('/:id', authObjectId, async (req, res) => {
     const customerId = req.params.id;
     if (!customerId) {
         return res.status(404).json({ msg: 'customer Not Found!' });
     }
 
     try {
-        const customer = await Customer.findById(customerId);
+        const customer = await Customer.findById(customerId).populate('BusinessId', 'BusinessName -_id');
         res.json(customer);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -36,9 +36,6 @@ router.get('/businessId/:businessId', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-
-
 
 router.post('/', async (req, res) => {
     try {
