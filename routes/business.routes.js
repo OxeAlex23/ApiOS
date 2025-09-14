@@ -25,7 +25,21 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 // uploadImgs.single("logo") trocar "logo" => "class do input file do front"
 router.post('/', uploadImgs.single("logo"), async (req, res) => {
-    const { UserId, BusinessName, Address, City, State, PhoneNumber, EmailAddress, Description, AreaId } = req.body;
+    const {  
+        UserId,
+        BusinessName,
+        FantasyName,
+        BusinessType,
+        CompanySize,
+        LegalNature,
+        Address,
+        Email,
+        Phone,
+        BusinessCode,
+        BusinessSituation,
+        IsMEI,
+        Coordinates
+     } = req.body;
 
     try {
         let logo = null;
@@ -35,7 +49,21 @@ router.post('/', uploadImgs.single("logo"), async (req, res) => {
 
             logo = { data: resizedImg, contentType: "image/webp" };
         }
-        const business = await Business.create({ UserId, BusinessName, LogoImgUrl: logo, Address, City, State, PhoneNumber, EmailAddress, Description, AreaId });
+        const business = await Business.create({   UserId,
+        BusinessName,
+        FantasyName,
+        BusinessType,
+        CompanySize,
+        LegalNature,
+        Address,
+        Email,
+        Phone,
+        BusinessCode,
+        BusinessSituation,
+        IsMEI,
+        Coordinates,
+        LogoImgUrl: logo
+     });
 
         const BusinessId = business._id;
 
@@ -76,16 +104,33 @@ router.put('/:id', uploadImgs.single("logo"), async (req, res) => {
         const business = await Business.findById(businessId);
         if (!business) return res.status(404).json({ error: "Business not found" });
 
-        const { BusinessName, Address, City, State, PhoneNumber, EmailAddress, Description, AreaId } = req.body;
+        const {
+        BusinessName,
+        FantasyName,
+        BusinessType,
+        CompanySize,
+        LegalNature,
+        Address,
+        Email,
+        Phone,
+        BusinessCode,
+        BusinessSituation,
+        IsMEI,
+        Coordinates
+     } = req.body;
 
         if (BusinessName) business.BusinessName = BusinessName;
+        if (FantasyName) business.FantasyName = FantasyName;
+        if (BusinessType) business.BusinessType = BusinessType;
+        if (CompanySize) business.CompanySize = CompanySize;
+        if (LegalNature) business.LegalNature = LegalNature;
         if (Address) business.Address = Address;
-        if (City) business.City = City;
-        if (State) business.State = State;
-        if (PhoneNumber) business.PhoneNumber = PhoneNumber;
-        if (EmailAddress) business.EmailAddress = EmailAddress;
-        if (Description) business.Description = Description;
-        if (AreaId) business.AreaId = AreaId;
+        if (Email) business.Email = Email;
+        if (BusinessCode) business.BusinessCode = BusinessCode;
+        if (BusinessSituation) business.BusinessSituation = BusinessSituation;
+        if (IsMEI) business.IsMEI = IsMEI;
+        if (Coordinates) business.Coordinates = Coordinates;
+
 
 
         if (req.file) {

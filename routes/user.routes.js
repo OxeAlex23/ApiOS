@@ -80,7 +80,7 @@ router.patch('/defaultBusiness/:userId', async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { UserTypeId, FirstName, LastName, UserImgUrl, PhoneNumber, PhoneVerified, EmailAddress, EmailVerified, CPF, Role, Password, GoogleId, BusinessId } = req.body;
+    const { UserTypeId, FirstName, LastName, UserImgUrl, PhoneNumber, PhoneVerified, EmailAddress, EmailVerified, CPF, Role, BirthDate, Gender, Password, GoogleId, BusinessId } = req.body;
 
     const userData = {
       UserTypeId: UserTypeId || 1,
@@ -92,7 +92,9 @@ router.post("/", async (req, res) => {
       EmailAddress,
       EmailVerified: true,
       CPF,
-      Role: Role || "client",
+      Role,
+      BirthDate,
+      Gender,
       GoogleId,
       BusinessId
     }
