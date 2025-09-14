@@ -20,8 +20,12 @@ router.post("/auth", async (req, res) => {
           await user.save();
         }
       }
+
+      user = user.toObject();
+      delete user.Password;
+
       const token = await jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" })
-      return res.status(201).json({ msg: 'login successfully!', token: token });
+      return res.status(201).json({ msg: 'login successfully!', token: token, user: user });
     }
 
     if (Password) {
@@ -32,8 +36,11 @@ router.post("/auth", async (req, res) => {
         }
       }
 
+      user = user.toObject();
+      delete user.Password;
+
       const token = await jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
-      return res.status(201).json({ msg: 'login successfully!', token: token });
+      return res.status(201).json({ msg: 'login successfully!', token: token, user: user });
     }
 
   } catch (err) {
