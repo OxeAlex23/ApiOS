@@ -4,68 +4,74 @@ import Business from '../models/BusinessSchema.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import authObjectId from '../middleware/authObjectId.js';
+import { OAuth2Client } from 'google-auth-library';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const clientID = process.env.CLIENT_ID;
+const client = new OAuth2Client(clientID);
 const router = express.Router();
 
 
 router.post("/auth", async (req, res) => {
-  const { GoogleId, EmailAddress, Password } = req.body;
-
+  const { tokenGoogle, EmailAddress, Password } = req.body;
+  
   try {
-    let user = await User.findOne({ EmailAddress });
-    if (!user) {
-      return res.status(404).json({msg: 'User Not Found!'});
-    }
-
-    if (GoogleId) {
-      if (user) {
-        if (!user.GoogleId) {
-          user.GoogleId = GoogleId;
-          user.EmailVerified = true;
-          await user.save();
-        }
-      }
+    if (tokenGoogle) {
+      const ticket = await client.verifyIdToken({
+        idToken: tokenGoogle,
+        audience: clientID
+      });
+      const payload = ticket.getPayload();
+      const GoogleId = payload.sub;
+      const EmailAddress = payload.email;
+      
+      
+      let user = await User.findOne({ EmailAddress });
 
       user = user.toObject();
       delete user.Password;
 
-      const token = await jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" })
-      return res.status(201).json({ msg: 'login successfully!', token: token, user: user });
+      const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
+      return res.status(201).json({ msg: 'Login Google bem-sucedido!', token, user });
     }
 
-    if (Password) {
-      if (user) {
-        const isMatch = await bcrypt.compare(Password, user.Password || "");
-        if (!isMatch) {
-          return res.status(401).json({ msg: "incorrect credentials!" });
-        }
-      }
+    if (EmailAddress && Password) {
+      let user = await User.findOne({ EmailAddress });
+      if (!user) return res.status(404).json({ msg: 'User Not Found!' });
+
+      const isMatch = await bcrypt.compare(Password, user.Password || "");
+      if (!isMatch) return res.status(401).json({ msg: "Incorrect credentials!" });
 
       user = user.toObject();
       delete user.Password;
       const business = await Business.findById(user.DefaultBusinessId);
 
-      const token = await jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
-      return res.status(201).json({ msg: 'login successfully!', token: token, User: user, Business: business });
+      const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
+      return res.status(201).json({ msg: 'Login bem-sucedido!', token, User: user, Business: business });
     }
 
+    return res.status(400).json({ msg: "Dados insuficientes para login" });
+
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
 });
+
 
 router.patch('/defaultBusiness/:userId', async (req, res) => {
   const { userId } = req.params;
   const { DefaultBusinessId } = req.body;
 
   try {
-    
+
     const business = await Business.findById(DefaultBusinessId);
     if (!business) {
       return res.status(404).json({ msg: 'Business Not Found!' });
     }
 
-    
-    const user = await User.findByIdAndUpdate( userId, { DefaultBusinessId }, { new: true });
+
+    const user = await User.findByIdAndUpdate(userId, { DefaultBusinessId }, { new: true });
 
     if (!user) {
       return res.status(404).json({ msg: 'User Not Found!' });
@@ -109,7 +115,7 @@ router.post("/", async (req, res) => {
 
 
     const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
-    return res.status(200).json({ msg: "login Google successfully!", user, token: token });
+    return res.status(200).json({ msg: "user created successfully!", user, token: token });
 
 
   } catch (err) {
