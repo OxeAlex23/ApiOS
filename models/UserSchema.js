@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+  DefaultBusinessId: { type: mongoose.Schema.Types.ObjectId, ref: 'Business', default: null},
   UserTypeId: { type: Number, required: true },
   FirstName: { type: String, required: true },
   LastName: String,

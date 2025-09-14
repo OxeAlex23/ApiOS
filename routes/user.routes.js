@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/UserSchema.js';
+import Business from '../models/BusinessSchema.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import authObjectId from '../middleware/authObjectId.js';
@@ -11,6 +12,9 @@ router.post("/auth", async (req, res) => {
 
   try {
     let user = await User.findOne({ EmailAddress });
+    if (!user) {
+      return res.status(404).json({msg: 'User Not Found!'});
+    }
 
     if (GoogleId) {
       if (user) {
@@ -38,15 +42,41 @@ router.post("/auth", async (req, res) => {
 
       user = user.toObject();
       delete user.Password;
+      const business = await Business.findById(user.DefaultBusinessId);
 
       const token = await jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
-      return res.status(201).json({ msg: 'login successfully!', token: token, user: user });
+      return res.status(201).json({ msg: 'login successfully!', token: token, User: user, Business: business });
     }
 
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
-})
+});
+
+router.patch('/defaultBusiness/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { DefaultBusinessId } = req.body;
+
+  try {
+    
+    const business = await Business.findById(DefaultBusinessId);
+    if (!business) {
+      return res.status(404).json({ msg: 'Business Not Found!' });
+    }
+
+    
+    const user = await User.findByIdAndUpdate( userId, { DefaultBusinessId }, { new: true });
+
+    if (!user) {
+      return res.status(404).json({ msg: 'User Not Found!' });
+    }
+
+    return res.status(200).json({ msg: 'Business standard updated successfully!', user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 router.post("/", async (req, res) => {
   try {
