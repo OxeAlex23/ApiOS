@@ -123,6 +123,21 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get('/checkEmail', async (req, res) => {
+  try {
+    const { EmailAddress } = req.query;
+    if (!EmailAddress) {
+      return res.status(400).json({error: 'Email is required!'});
+    }
+
+    const user = await User.findOne({ EmailAddress });
+    res.status(200).json({msg: `user exists? ${!!user}` });
+
+  } catch (err) {
+    res.status(500).json({error: err.message});
+  }
+});
+
 router.get('/', async (req, res) => {
   const users = await User.find().select('-Password');
   res.json(users);
@@ -141,6 +156,7 @@ router.get('/:id', authObjectId, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 router.put('/:id', authObjectId, async (req, res) => {

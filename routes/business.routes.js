@@ -23,7 +23,6 @@ router.get('/:id', authObjectId, async (req, res) => {
     res.json(business);
 });
 
-// uploadImgs.single("logo") trocar "logo" => "class do input file do front"
 router.post('/', async (req, res) => {
     const {  
         UserId,
