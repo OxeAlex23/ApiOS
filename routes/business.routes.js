@@ -3,13 +3,24 @@ const router = express.Router();
 import Business from '../models/BusinessSchema.js';
 import BusinessUser from '../models/BusinessUserSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
-import uploadImgs from '../middleware/uploadImgs.js';
-import sharp from 'sharp';
-import crypto from 'crypto';
 
 router.get('/', async (req, res) => {
     const business = await Business.find();
     res.json(business);
+});
+
+router.get('/checkCnpj', async (req, res) => {
+    try {
+        const { BusinessCode } = req.query;
+        if (!BusinessCode) {
+            return res.status(400).json({ error: 'Cnpj is required!' });
+        }
+
+        const business = await Business.findOne({ BusinessCode });
+        res.status(200).json({ msg: `business exists? ${!!business}` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 router.get('/:id', authObjectId, async (req, res) => {
@@ -24,7 +35,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const {  
+    const {
         UserId,
         BusinessName,
         FantasyName,
@@ -40,27 +51,27 @@ router.post('/', async (req, res) => {
         IsMEI,
         Coordinates,
         LogoImgUrl
-     } = req.body;
+    } = req.body;
 
     try {
 
-        const business = await Business.create({ 
-        UserId,
-        BusinessName,
-        FantasyName,
-        BusinessType,
-        CompanySize,
-        LegalNature,
-        FullAddress,
-        City,
-        Email,
-        Phone,
-        BusinessCode,
-        BusinessSituation,
-        IsMEI,
-        Coordinates,
-        LogoImgUrl
-     });
+        const business = await Business.create({
+            UserId,
+            BusinessName,
+            FantasyName,
+            BusinessType,
+            CompanySize,
+            LegalNature,
+            FullAddress,
+            City,
+            Email,
+            Phone,
+            BusinessCode,
+            BusinessSituation,
+            IsMEI,
+            Coordinates,
+            LogoImgUrl
+        });
 
         const BusinessId = business._id;
 
@@ -73,48 +84,27 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get("/:id/logo", async (req, res) => {
-    try {
-        const businessId = req.params.id;
-        const business = await Business.findById(businessId);
 
-        if (!business || !business.LogoImgUrl?.data) {
-            return res.status(404).json({ msg: "logo Not Found!" });
-        }
-
-        const tag = crypto.createHash("md5").update(business.LogoImgUrl.data).digest("hex");
-
-        if (req.headers["if-none-match"] === tag) {
-            return res.status(300).end();
-        }
-
-        res.set({ "Content-Type": business.LogoImgUrl.contentType, "Cache-Control": "public, max-age=86400", "ETag": tag });
-        res.send(business.LogoImgUrl.data);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-})
-
-router.put('/:id', uploadImgs.single("logo"), async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
         const businessId = req.params.id;
         const business = await Business.findById(businessId);
         if (!business) return res.status(404).json({ error: "Business not found" });
 
         const {
-        BusinessName,
-        FantasyName,
-        BusinessType,
-        CompanySize,
-        LegalNature,
-        Address,
-        Email,
-        Phone,
-        BusinessCode,
-        BusinessSituation,
-        IsMEI,
-        Coordinates
-     } = req.body;
+            BusinessName,
+            FantasyName,
+            BusinessType,
+            CompanySize,
+            LegalNature,
+            Address,
+            Email,
+            Phone,
+            BusinessCode,
+            BusinessSituation,
+            IsMEI,
+            Coordinates
+        } = req.body;
 
         if (BusinessName) business.BusinessName = BusinessName;
         if (FantasyName) business.FantasyName = FantasyName;
@@ -127,17 +117,6 @@ router.put('/:id', uploadImgs.single("logo"), async (req, res) => {
         if (BusinessSituation) business.BusinessSituation = BusinessSituation;
         if (IsMEI) business.IsMEI = IsMEI;
         if (Coordinates) business.Coordinates = Coordinates;
-
-
-
-        if (req.file) {
-            const resizedImg = await sharp(req.file.buffer)
-                .resize(300)
-                .webp({ quality: 80 })
-                .toBuffer();
-
-            business.LogoImgUrl = { data: resizedImg, contentType: "image/webp" };
-        }
 
         await business.save();
 
@@ -161,5 +140,6 @@ router.delete('/:id', authObjectId, async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-})
+});
+
 export default router;
