@@ -24,7 +24,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 });
 
 // uploadImgs.single("logo") trocar "logo" => "class do input file do front"
-router.post('/', uploadImgs.single("logo"), async (req, res) => {
+router.post('/', async (req, res) => {
     const {  
         UserId,
         BusinessName,
@@ -39,19 +39,15 @@ router.post('/', uploadImgs.single("logo"), async (req, res) => {
         BusinessCode,
         BusinessSituation,
         IsMEI,
-        Coordinates
+        Coordinates,
+        LogoImgUrl
      } = req.body;
 
     try {
         let logo = null;
 
-        if (req.file) {
-            const resizedImg = await sharp(req.file.buffer).resize(300).webp({ quality: 80 }).toBuffer();
-
-            logo = { data: resizedImg, contentType: "image/webp" };
-        }
         const business = await Business.create({ 
-         UserId,
+        UserId,
         BusinessName,
         FantasyName,
         BusinessType,
@@ -65,7 +61,7 @@ router.post('/', uploadImgs.single("logo"), async (req, res) => {
         BusinessSituation,
         IsMEI,
         Coordinates,
-        LogoImgUrl: logo
+        LogoImgUrl
      });
 
         const BusinessId = business._id;

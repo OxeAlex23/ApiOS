@@ -16,7 +16,7 @@ const BusinessSchema = new mongoose.Schema({
     BusinessSituation: { type: String, required: true },
     IsMEI: {type: Boolean, required: true },
     Coordinates: { type: String, required: true },
-    LogoImgUrl: { data: Buffer, contentType: String },
+    LogoImgUrl: { type: String, required: true },
     CreateAt: {type: Date, default: Date.now},
     IsActive: {type: Boolean, default: true}
 });
