@@ -32,7 +32,8 @@ router.post('/', uploadImgs.single("logo"), async (req, res) => {
         BusinessType,
         CompanySize,
         LegalNature,
-        Address,
+        FullAddress,
+        City,
         Email,
         Phone,
         BusinessCode,
@@ -49,13 +50,15 @@ router.post('/', uploadImgs.single("logo"), async (req, res) => {
 
             logo = { data: resizedImg, contentType: "image/webp" };
         }
-        const business = await Business.create({   UserId,
+        const business = await Business.create({ 
+         UserId,
         BusinessName,
         FantasyName,
         BusinessType,
         CompanySize,
         LegalNature,
-        Address,
+        FullAddress,
+        City,
         Email,
         Phone,
         BusinessCode,
