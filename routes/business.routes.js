@@ -44,7 +44,6 @@ router.post('/', async (req, res) => {
      } = req.body;
 
     try {
-        let logo = null;
 
         const business = await Business.create({ 
         UserId,
