@@ -141,6 +141,23 @@ router.get('/checkEmail', async (req, res) => {
   }
 });
 
+router.get('/:id/businesses', async (req, res) => {
+    const { id } = req.params;
+    if (!id) {
+        return res.status(404).json({msg: 'user Not Found'});
+    }
+    try {
+        const businesses = await Business.find({UserId: id});
+        if (!businesses) {
+            return res.json([]);
+        }
+
+        res.status(201).json(businesses);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.get('/', async (req, res) => {
   const users = await User.find().select('-Password');
   if (!users) {
