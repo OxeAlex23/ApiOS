@@ -6,6 +6,9 @@ import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const business = await Business.find();
+    if (!business) {
+        return res.json([]);
+    }
     res.json(business);
 });
 
@@ -17,6 +20,9 @@ router.get('/checkCnpj', async (req, res) => {
         }
 
         const business = await Business.findOne({ BusinessCode });
+        if (!business) {
+            return res.json([]);
+        }
         res.status(200).json({ msg: `business exists? ${!!business}` });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -31,6 +37,9 @@ router.get('/:id', authObjectId, async (req, res) => {
         return res.status(404).json({ msg: 'Business Not Found!' })
     }
     const business = await Business.findById(businessId).populate('UserId', 'FirstName LastName -_id');
+    if (!business) {
+        return res.json([]);
+    }
     res.json(business);
 });
 

@@ -5,6 +5,9 @@ import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const businessUsersRole = await BusinessUserRole.find();
+    if (!businessUsersRole) {
+        return res.json([]);
+    }
     res.json(businessUsersRole);
 });
 
@@ -16,6 +19,9 @@ router.get('/:id', authObjectId, async (req, res) => {
 
     try {
         const businessUserRole = await BusinessUserRole.findById(businessUserRoleId);
+        if (!businessUserRole) {
+            return res.json([]);
+        }
         res.json(businessUserRole);
     } catch (err) {
         res.status(500).json({ error: err.message })
@@ -26,7 +32,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const businessUserRole = await BusinessUserRole.create(req.body);
-        res.status(200).json({msg: 'businessUserRole created  successfully!' ,businessUserRole});
+        res.status(200).json({ msg: 'businessUserRole created  successfully!', businessUserRole });
     } catch (err) {
         res.status(500).json({ error: err.message })
     }
@@ -40,8 +46,8 @@ router.put('/:id', authObjectId, async (req, res) => {
     }
 
     try {
-        const updateBusinessUserRole = await BusinessUserRole.findByIdAndUpdate(businessUserRoleId, req.body, {new: true});
-        res.status(200).json({msg: 'businessUserRole updated successfully!', updateBusinessUserRole});
+        const updateBusinessUserRole = await BusinessUserRole.findByIdAndUpdate(businessUserRoleId, req.body, { new: true });
+        res.status(200).json({ msg: 'businessUserRole updated successfully!', updateBusinessUserRole });
     } catch (err) {
         res.status(500).json({ error: err.message })
     }
@@ -56,7 +62,7 @@ router.delete('/:id', authObjectId, async (req, res) => {
 
     try {
         const deletedBusinessUserRole = await BusinessUserRole.findByIdAndDelete(businessUserRoleId);
-        res.status(200).json({msg: 'businessUserRole deleted successfully!', deletedBusinessUserRole});
+        res.status(200).json({ msg: 'businessUserRole deleted successfully!', deletedBusinessUserRole });
     } catch (err) {
         res.status(500).json({ error: err.message })
     }

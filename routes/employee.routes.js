@@ -5,6 +5,9 @@ import Employee from '../models/EmployeeSchema.js';
 router.get('/', async (req, res) => {
     try {
         const employees = await Employee.find();
+        if (!employees) {
+            return res.json([]);
+        }
         res.json(employees);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -19,13 +22,13 @@ router.get('/:id', async (req, res) => {
     try {
         const employee = await Employee.findById(employeeId, '-__v').populate('BusinessId', 'BusinessName -_id');
         if (!employee) {
-            return res.status(404).json({ msg: 'Employee Not Found!' });
+            return res.status(404).json([]);
         }
         res.json(employee);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-});   
+});
 
 router.get('/employeeByBusiness/:businessId', async (req, res) => {
     const businessId = req.params.businessId;
@@ -38,14 +41,14 @@ router.get('/employeeByBusiness/:businessId', async (req, res) => {
         const employees = await Employee.find({ BusinessId: businessId }).populate('BusinessId', 'BusinessName -_id');
 
         if (employees.length === 0) {
-            return res.status(404).json({ msg: 'No employees found for this business!' });
+            return res.status(404).json([]);
         }
 
         const employeesByBusiness = employees.map(emp => ({
             EmployeeName: emp.EmployeeName,
             JobTitle: emp.JobTitle,
             EmployeeImgUrl: emp.EmployeeImgUrl,
-            BusinessName: emp.BusinessId?.BusinessName 
+            BusinessName: emp.BusinessId?.BusinessName
         }));
 
         res.json(employeesByBusiness);

@@ -5,6 +5,9 @@ import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const orderStatus = await OrderStatus.find();
+    if (!orderStatus) {
+        return res.json([]);
+    }
     res.json(orderStatus);
 })
 
@@ -16,6 +19,10 @@ router.get('/:id', authObjectId, async (req, res) => {
 
     try {
         const orderStatus = await OrderStatus.findById(orderStatusId, '-__v').populate('BusinessId', 'BusinessName -_id');
+
+        if (!orderStatus) {
+            return res.json([]);
+        }
         res.json(orderStatus);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -31,7 +38,7 @@ router.get('/statusByBusiness/:businessId', async (req, res) => {
     }
 
     try {
-        const statusByBusiness = await OrderStatus.find({BusinessId: businessId}, '-__v').populate('BusinessId', 'BusinessName -_id')
+        const statusByBusiness = await OrderStatus.find({ BusinessId: businessId }, '-__v').populate('BusinessId', 'BusinessName -_id')
         if (!statusByBusiness) {
             return res.status(404).json([]);
         }
@@ -39,16 +46,16 @@ router.get('/statusByBusiness/:businessId', async (req, res) => {
         res.status(200).json(statusByBusiness);
 
     } catch (err) {
-        res.status(500).json({error: err.message})
+        res.status(500).json({ error: err.message })
     }
 })
 
 router.post('/', async (req, res) => {
     const { OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder } = req.body
     try {
-        const orderStatus = await OrderStatus.create({ OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder } );
+        const orderStatus = await OrderStatus.create({ OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder });
 
-        res.status(200).json({msg: 'orderStatus created successfully!', orderStatus});
+        res.status(200).json({ msg: 'orderStatus created successfully!', orderStatus });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -60,11 +67,11 @@ router.put('/:id', authObjectId, async (req, res) => {
     const { OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder } = req.body;
 
     try {
-        const orderStatus = await OrderStatus.findByIdAndUpdate(orderStatusId, { OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder }, {new: true});
-         if (!orderStatus) {
+        const orderStatus = await OrderStatus.findByIdAndUpdate(orderStatusId, { OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder }, { new: true });
+        if (!orderStatus) {
             return res.status(404).json({ msg: 'orderStatus not found!' });
         }
-        res.status(200).json({msg: 'orderStatus updated successfully!', orderStatus});
+        res.status(200).json({ msg: 'orderStatus updated successfully!', orderStatus });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -79,7 +86,7 @@ router.delete('/:id', authObjectId, async (req, res) => {
 
     try {
         const deletedOrderStatus = await OrderStatus.findByIdAndDelete(orderStatusId);
-        res.status(200).json({msg: 'orderStatus deleted successfully!', deletedOrderStatus});
+        res.status(200).json({ msg: 'orderStatus deleted successfully!', deletedOrderStatus });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

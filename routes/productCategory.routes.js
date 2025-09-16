@@ -5,6 +5,9 @@ import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const productsCategory = await ProductCategory.find();
+    if (!productsCategory) {
+        return res.json([]);
+    }
     res.json(productsCategory);
 });
 
@@ -16,6 +19,9 @@ router.get('/:id', authObjectId, async (req, res) => {
 
     try {
         const productCategory = await ProductCategory.findById(productCategoryId);
+        if (!productCategory) {
+            return res.json([]);
+        }
         res.json(productCategory);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -26,35 +32,16 @@ router.get('/categoryByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;
 
     try {
-        const categories = await ProductCategory.find({ BusinessId: businessId });
+        const categories = await ProductCategory.find({ BusinessId: businessId }).populate('BusinessId', 'BusinessName');
 
         if (!categories || categories.length === 0) {
-            return res.status(404).json({ msg: 'No product categories found for this business!' });
+            return res.status(404).json([]);
         }
 
         res.json(categories);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-});
-
-router.get('/categoryByBusiness/:businessId', async (req, res) => {
-  const { businessId } = req.params;
-
-  try {
-    const categories = await ProductCategory.find({
-      BusinessId: businessId,
-      IsActive: true 
-    });s
-
-    if (!categories || categories.length === 0) {
-      return res.status(404).json({ msg: 'No active categories found for this business!' });
-    }
-
-    res.json(categories);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 });
 
 

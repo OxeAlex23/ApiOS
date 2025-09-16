@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post("/auth", async (req, res) => {
   const { tokenGoogle, EmailAddress, Password } = req.body;
-  
+
   try {
     if (tokenGoogle) {
       const ticket = await client.verifyIdToken({
@@ -25,15 +25,15 @@ router.post("/auth", async (req, res) => {
       const payload = ticket.getPayload();
       const GoogleId = payload.sub;
       const EmailAddress = payload.email;
-      
-      
+
+
       let user = await User.findOne({ EmailAddress });
 
       user = user.toObject();
       delete user.Password;
 
       const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
-      return res.status(201).json({ msg: 'Login Google bem-sucedido!', token, user });
+      return res.status(201).json({ msg: 'Login Google successfully!', token, user });
     }
 
     if (EmailAddress && Password) {
@@ -48,10 +48,10 @@ router.post("/auth", async (req, res) => {
       const business = await Business.findById(user.DefaultBusinessId);
 
       const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
-      return res.status(201).json({ msg: 'Login bem-sucedido!', token, User: user, Business: business });
+      return res.status(201).json({ msg: 'Login successfully!', token, User: user, Business: business });
     }
 
-    return res.status(400).json({ msg: "Dados insuficientes para login" });
+    return res.status(400).json({ msg: "data required!" });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -127,19 +127,25 @@ router.get('/checkEmail', async (req, res) => {
   try {
     const { EmailAddress } = req.query;
     if (!EmailAddress) {
-      return res.status(400).json({error: 'Email is required!'});
+      return res.status(400).json({ error: 'Email is required!' });
     }
 
-    const user = await User.findOne({ EmailAddress });
-    res.status(200).json({msg: `user exists? ${!!user}` });
+    const user = await User.findOne({ EmailAddress }).select('-Password');
+    if (!user) {
+      return res.json([]);
+    }
+    res.status(200).json({ msg: `user exists? ${!!user}` });
 
   } catch (err) {
-    res.status(500).json({error: err.message});
+    res.status(500).json({ error: err.message });
   }
 });
 
 router.get('/', async (req, res) => {
   const users = await User.find().select('-Password');
+  if (!users) {
+    return res.json([]);
+  }
   res.json(users);
 });
 
@@ -149,7 +155,7 @@ router.get('/:id', authObjectId, async (req, res) => {
   try {
     const user = await User.findById(userId, '-Password');
     if (!user) {
-      return res.status(404).json({ msg: 'user Not Found!' });
+      return res.status(404).json([]);
     }
     res.json(user);
   } catch (err) {
