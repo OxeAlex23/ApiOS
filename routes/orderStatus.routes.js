@@ -4,7 +4,7 @@ import OrderStatus from '../models/OrderStatusSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
-    const orderStatus = await OrderStatus.find();
+    const orderStatus = await OrderStatus.find().populate('BusinessId', 'BusinessName');
     if (!orderStatus) {
         return res.json([]);
     }

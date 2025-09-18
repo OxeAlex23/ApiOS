@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import Business from '../models/BusinessSchema.js';
 import BusinessUser from '../models/BusinessUserSchema.js';
+import OrderStatus from '../models/OrderStatusSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
@@ -64,6 +65,10 @@ router.post('/', async (req, res) => {
 
     try {
 
+        if (!UserId || !BusinessName ) {
+            return res.status(400).json({ msg: 'UserId and BusinessName are required!' });
+        }
+
         const business = await Business.create({
             UserId,
             BusinessName,
@@ -83,10 +88,48 @@ router.post('/', async (req, res) => {
         });
 
         const BusinessId = business._id;
+        const orderStatusData = [
+            {
+                OrderStatusDesc: "Concluído",
+                BusinessId: BusinessId,
+                ShowOnBoard: false,
+                IsEditable: false,
+                DisplayOrder: 101,
+            },
+            {
+                OrderStatusDesc: "Cancelado",
+                BusinessId: BusinessId,
+                ShowOnBoard: false,
+                IsEditable: false,
+                DisplayOrder: 102,
+            },
+            {
+                OrderStatusDesc: "Orçamentos",
+                BusinessId: BusinessId,
+                ShowOnBoard: true,
+                IsEditable: true,
+                DisplayOrder: 1,
+            },
+            {
+                OrderStatusDesc: "Em andamento",
+                BusinessId: BusinessId,
+                ShowOnBoard: true,
+                IsEditable: true,
+                DisplayOrder: 2,
+            },
+            {
+                OrderStatusDesc: "Aguardando Cliente",
+                BusinessId: BusinessId,
+                ShowOnBoard: true,
+                IsEditable: true,
+                DisplayOrder: 3,
+            },
+        ];
 
-
+        const newOrderStatus = await OrderStatus.insertMany(orderStatusData, { ordered: false });
         const businessUser = await BusinessUser.create({ UserId, BusinessId });
-        res.status(200).json({ msg: 'business and businessUser created successfully!', business, businessUser });
+        
+        res.status(200).json({ msg: 'business, businessUser and orderStatus created successfully!', business, businessUser, newOrderStatus });
 
     } catch (err) {
         res.status(500).json({ error: err.message });
