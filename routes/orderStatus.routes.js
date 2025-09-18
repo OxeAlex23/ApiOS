@@ -1,6 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import OrderStatus from '../models/OrderStatusSchema.js';
+import Order from '../models/OrderSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
@@ -85,7 +86,18 @@ router.delete('/:id', authObjectId, async (req, res) => {
     }
 
     try {
+
+        const orderExists = await Order.findOne({ OrderStatusId: orderStatusId });
+        if (orderExists) {
+            return res.status(400).json({ msg: 'This status is linked to an order and cannot be deleted!' });
+        };
+
         const deletedOrderStatus = await OrderStatus.findByIdAndDelete(orderStatusId);
+
+        if (!deletedOrderStatus) {
+            return res.status(404).json({ msg: 'orderStatus Not Found' });
+        }
+        
         res.status(200).json({ msg: 'orderStatus deleted successfully!', deletedOrderStatus });
     } catch (err) {
         res.status(500).json({ error: err.message });
