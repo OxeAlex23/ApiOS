@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const BusinessSchema = new mongoose.Schema({
+  UserId: { type: mongoose.Types.ObjectId, ref: "User" },
   BusinessName: { type: String, required: true },
   FantasyName: { type: String, required: true },
   BusinessType: { type: String, required: true },

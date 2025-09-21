@@ -35,7 +35,7 @@ router.get('/categoryByBusiness/:businessId', async (req, res) => {
         const categories = await ProductCategory.find({ BusinessId: businessId }).populate('BusinessId', 'BusinessName');
 
         if (!categories || categories.length === 0) {
-            return res.status(404).json([]);
+            return res.json([]);
         }
 
         res.json(categories);

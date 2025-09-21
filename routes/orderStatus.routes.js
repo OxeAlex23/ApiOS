@@ -35,13 +35,13 @@ router.get('/statusByBusiness/:businessId', async (req, res) => {
     const businessId = req.params.businessId;
 
     if (!businessId) {
-        return res.status(404).json([]);
+        return res.status(404).json({msg: 'business Not found!'});
     }
 
     try {
         const statusByBusiness = await OrderStatus.find({ BusinessId: businessId }, '-__v').populate('BusinessId', 'BusinessName -_id')
         if (!statusByBusiness) {
-            return res.status(404).json([]);
+            return res.json([]);
         }
 
         res.status(200).json(statusByBusiness);

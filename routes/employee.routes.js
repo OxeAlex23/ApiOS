@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
     try {
         const employee = await Employee.findById(employeeId, '-__v').populate('BusinessId', 'BusinessName -_id');
         if (!employee) {
-            return res.status(404).json([]);
+            return res.json([]);
         }
         res.json(employee);
     } catch (err) {
@@ -38,13 +38,14 @@ router.get('/employeeByBusiness/:businessId', async (req, res) => {
     }
 
     try {
-        const employees = await Employee.find({ BusinessId: businessId }).populate('BusinessId', 'BusinessName -_id');
+        const employees = await Employee.find({ BusinessId: businessId }).populate('BusinessId', 'BusinessName ')
 
         if (employees.length === 0) {
-            return res.status(404).json([]);
+            return res.json([]);
         }
 
         const employeesByBusiness = employees.map(emp => ({
+            _id: emp._id,
             EmployeeName: emp.EmployeeName,
             JobTitle: emp.JobTitle,
             EmployeeImgUrl: emp.EmployeeImgUrl,

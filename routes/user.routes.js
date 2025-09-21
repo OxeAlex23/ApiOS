@@ -172,7 +172,7 @@ router.get('/:id', authObjectId, async (req, res) => {
   try {
     const user = await User.findById(userId, '-Password');
     if (!user) {
-      return res.status(404).json([]);
+      return res.json([]);
     }
     res.json(user);
   } catch (err) {
