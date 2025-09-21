@@ -22,7 +22,7 @@ router.get('/customersByBusiness/:businessId', async (req, res) => {
 
     try {
         if (!businessId) {
-            return res.status(404).json({ m: 'not ' });
+            return res.status(404).json({ msg: 'business Not Found! ' });
         }
 
         const customers = await Customer.find({ BusinessId: businessId }).populate('BusinessId', 'BusinessName');
