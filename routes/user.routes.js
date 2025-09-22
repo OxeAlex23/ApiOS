@@ -131,9 +131,6 @@ router.get('/checkEmail', async (req, res) => {
     }
 
     const user = await User.findOne({ EmailAddress }).select('-Password');
-    if (!user) {
-      return res.json([]);
-    }
     res.status(200).json({ msg: `user exists? ${!!user}` });
 
   } catch (err) {

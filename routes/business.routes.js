@@ -21,9 +21,6 @@ router.get('/checkCnpj', async (req, res) => {
         }
 
         const business = await Business.findOne({ BusinessCode });
-        if (!business) {
-            return res.json([]);
-        }
         res.status(200).json({ msg: `business exists? ${!!business}` });
     } catch (err) {
         res.status(500).json({ error: err.message });
