@@ -1,6 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import Employee from '../models/EmployeeSchema.js';
+import authObjectId from '../middleware/authObjectId.js'
 
 router.get('/', async (req, res) => {
     try {
@@ -30,8 +31,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.get('/employeeByBusiness/:businessId', async (req, res) => {
-    const businessId = req.params.businessId;
+router.get('/employeeByBusiness/:id', authObjectId, async (req, res) => {
+    const businessId = req.params.id;
 
     if (!businessId) {
         return res.status(404).json({ msg: 'business Not Found!' });

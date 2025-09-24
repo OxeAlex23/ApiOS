@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import Product from '../models/ProductSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
+import mongoose from 'mongoose';
 
 router.post('/', async (req, res) => {
     try {
@@ -37,6 +38,10 @@ router.get('/:id', authObjectId, async (req, res) => {
 
 router.get('/productsByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(businessId)) {
+        return res.status(400).json({msg: 'params invalid!'})
+    }
 
     try {
         const products = await Product.find({ BusinessId: businessId }).populate('ProductCategoryId', '-__v -BusinessId -_id -IsActive');
