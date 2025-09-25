@@ -63,6 +63,34 @@ router.post('/', async (req, res) => {
 
 });
 
+router.patch('/order/:orderId/status', async (req, res) => {
+    const { orderId } = req.params;
+    const { OrderStatusId } = req.body;
+
+    if (!orderId || !OrderStatusId) {
+        return res.status(400).json({ msg: 'OrderId e OrderStatusId são obrigatórios!' });
+    }
+
+    try {
+        const updatedOrder = await Order.findByIdAndUpdate( orderId, { OrderStatusId }, { new: true }).populate({
+            path: "OrderStatusId",
+            select: "OrderStatusDesc BusinessId ShowOnBoard IsEditable DisplayOrder"
+        });
+
+        if (!updatedOrder) {
+            return res.status(404).json({ msg: 'Order não encontrada!' });
+        }
+
+        res.status(200).json({
+            msg: 'Status atualizado com sucesso!',
+            order: updatedOrder
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 router.put('/:id', authObjectId, async (req, res) => {
     const orderStatusId = req.params.id;
     const { OrderStatusDesc, BusinessId, ShowOnBoard, IsEditable, DisplayOrder } = req.body;

@@ -5,7 +5,8 @@ import { calculateOrderTotal } from "../routes/calculateOrderTotal.js";
 const OrderProductSchema = new mongoose.Schema({
   OrderId: { type: mongoose.Types.ObjectId, ref: 'Order', required: true },
   ProductId: { type: mongoose.Types.ObjectId, ref: 'Product', required: true },
-  Quantity: { type: Number, default: 1 }
+  Quantity: { type: Number, default: 1 },
+  UnitPriceAtOrder: { type: Number }
 });
 
 

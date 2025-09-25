@@ -2,9 +2,10 @@ import mongoose from "mongoose";
 import { calculateServiceTotal } from "../routes/calculateServiceTotal.js";
 
 const OrderServiceSchema = new mongoose.Schema({
-    OrderId: {type: mongoose.Types.ObjectId, ref: "Order", required: true},
-    ServiceId: {type: mongoose.Types.ObjectId, ref: "Services", required: true},
-    Quantity: Number
+  OrderId: { type: mongoose.Types.ObjectId, ref: "Order", required: true },
+  ServiceId: { type: mongoose.Types.ObjectId, ref: "Services", required: true },
+  Quantity: { type: Number },
+  UnitPriceAtOrder: { type: Number }
 });
 
 
