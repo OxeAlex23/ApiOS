@@ -78,7 +78,7 @@ router.put('/order/:orderId', async (req, res) => {
             OrderId: orderId,
             ProductId: op.ProductId,
             Quantity: op.Quantity,
-            // UnitPriceAtOrder: op.UnitPriceAtOrder
+            UnitPriceAtOrder: op.UnitPriceAtOrder
         }));
 
         const opCreated = await OrderProduct.insertMany(newOrderProducts);
