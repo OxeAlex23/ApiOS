@@ -2,7 +2,6 @@ import express from 'express';
 const router = express.Router();
 import OrderProduct from '../models/OrderProductSchema.js';
 import authObjectId from '../middleware/authObjectId.js';
-import Order from '../models/OrderSchema.js';
 import { calculateOrderTotal } from './calculateOrderTotal.js';
 
 router.get('/', async (req, res) => {
