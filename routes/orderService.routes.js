@@ -11,6 +11,23 @@ router.get('/', async (req, res) => {
     res.json(orderServices);
 });
 
+router.get('/orderByOrderService/:orderId', async (req, res) => {
+    const { orderId } = req.params;
+    if (!orderId) {
+        return res.status(404).json({ msg: 'Order Not Found!' });
+    }
+
+    try {
+        const ordersService = await OrderService.find({ OrderId: orderId });
+        if (!ordersService) {
+            return res.json([]);
+        }
+        res.status(200).json(ordersService);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
 router.get('/:id', authObjectId, async (req, res) => {
     const orderServiceId = req.params.id;
     if (!orderServiceId) {

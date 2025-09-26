@@ -20,7 +20,7 @@ router.get('/orderByOrderProduct/:orderId', async (req, res) => {
     }
 
     try {
-        const ordersProducts = await Order.find({ OrderId: orderId });
+        const ordersProducts = await OrderProduct.find({ OrderId: orderId }).populate('OrderId', 'Title').populate('ProductId', 'ProductName');
         if (!ordersProducts) {
             return res.json([]);
         }
@@ -28,7 +28,7 @@ router.get('/orderByOrderProduct/:orderId', async (req, res) => {
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
-})
+});
 
 router.get('/:id', authObjectId, async (req, res) => {
     const orderProductId = req.params.id;
