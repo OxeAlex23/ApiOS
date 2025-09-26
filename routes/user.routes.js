@@ -193,7 +193,7 @@ router.put('/:id', authObjectId, async (req, res) => {
   }
 });
 
-router.patch('/:id', authObjectId, async (req, res) => {
+router.patch('/recovery-password/:id', authObjectId, async (req, res) => {
   const userId = req.params.id;
   const { Password } = req.body;
 
