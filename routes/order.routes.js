@@ -1,6 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import Order from '../models/OrderSchema.js';
+import OrderTrack from '../models/OrderTrackSchema.js';
 import { calculateOrderTotal } from './calculateOrderTotal.js';
 import authObjectId from '../middleware/authObjectId.js';
 
@@ -29,6 +30,23 @@ router.get('/ordersByBusiness/:businessId', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 
+});
+
+router.get('/orderByTrackCode/:trackCode', async (req, res) => {
+    const { trackCode } = req.params;
+
+    try {
+        const order = await OrderTrack.findOne({TrackCode: trackCode}).populate('OrderId', 'Title')
+        .populate('OrderStatusId', 'OrderStatusDesc');
+
+        if (!order) {
+           return  res.json([]);
+        }
+
+        res.status(200).json(order)
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 router.get('/:id', authObjectId, async (req, res) => {

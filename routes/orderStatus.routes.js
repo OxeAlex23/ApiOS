@@ -35,7 +35,7 @@ router.get('/statusByBusiness/:businessId', async (req, res) => {
     const businessId = req.params.businessId;
 
     if (!businessId) {
-        return res.status(404).json({msg: 'business Not found!'});
+        return res.status(404).json({ msg: 'business Not found!' });
     }
 
     try {
@@ -72,7 +72,7 @@ router.patch('/order/:orderId/status', async (req, res) => {
     }
 
     try {
-        const updatedOrder = await Order.findByIdAndUpdate( orderId, { OrderStatusId }, { new: true }).populate({
+        const updatedOrder = await Order.findByIdAndUpdate(orderId, { OrderStatusId }, { new: true }).populate({
             path: "OrderStatusId",
             select: "OrderStatusDesc BusinessId ShowOnBoard IsEditable DisplayOrder"
         });
@@ -81,10 +81,7 @@ router.patch('/order/:orderId/status', async (req, res) => {
             return res.status(404).json({ msg: 'Order não encontrada!' });
         }
 
-        res.status(200).json({
-            msg: 'Status atualizado com sucesso!',
-            order: updatedOrder
-        });
+        res.status(200).json({ msg: 'Status atualizado com sucesso!' })
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -125,7 +122,7 @@ router.delete('/:id', authObjectId, async (req, res) => {
         if (!deletedOrderStatus) {
             return res.status(404).json({ msg: 'orderStatus Not Found' });
         }
-        
+
         res.status(200).json({ msg: 'orderStatus deleted successfully!', deletedOrderStatus });
     } catch (err) {
         res.status(500).json({ error: err.message });
