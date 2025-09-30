@@ -6,6 +6,7 @@ import OrderProduct from '../models/OrderProductSchema.js';
 import OrderService from '../models/OrderServiceSchema.js';
 import { calculateOrderTotal } from './calculateOrderTotal.js';
 import authObjectId from '../middleware/authObjectId.js';
+import OrderStatus from '../models/OrderStatusSchema.js';
 
 router.get('/', async (req, res) => {
     const orders = await Order.find();
@@ -39,14 +40,13 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
     try {
 
-        const orderTrack = await OrderTrack.findOne({ TrackCode: trackCode })
-            .populate('OrderStatusId');
+        const order = await Order.findOne({ trackCode: trackCode }).populate('OrderStatusId', 'OrderStatusDesc' );
 
-        if (!orderTrack) {
-            return res.json({msg: 'orderTrack Not Found'});
+        if (!order) {
+            return res.json({msg: 'order Not Found'});
         }
 
-        const order = await Order.findById(orderTrack.OrderId);
+        const status = order.OrderStatusId;
 
         if (!order) {
             return res.json({msg: 'Order Not Found'});
@@ -54,12 +54,14 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
         const orderProducts = await OrderProduct.find({ OrderId: order._id })
             .populate('ProductId');
+
         if (!orderProducts) {
             return res.json([]);
         }
 
         const orderServices = await OrderService.find({ OrderId: order._id })
             .populate('ServiceId');
+
         if (!orderServices) {
             return res.json([]);
         }
@@ -83,13 +85,10 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
             Approved: order.isApproved
         };
 
-        const trackOrder = {
-            Status: orderTrack.OrderStatusId?.OrderStatusDesc
-        };
 
         return res.status(200).json({
             budget,
-            trackOrder
+            status
         });
 
     } catch (err) {

@@ -13,7 +13,7 @@ const OrderSchema = new mongoose.Schema({
     AdditionDesc: { type: String },
     AdditionValue: { type: Number },
     Notes: String,
-    trackCode: String,
+    TrackCode: String,
     RelatedEmployees: [{ type: mongoose.Types.ObjectId, ref: 'Employee' }],
     PaymentMethod: { type: String },
     PaymentTerms: { type: String },
