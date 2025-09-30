@@ -40,61 +40,63 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
     try {
 
-        const order = await Order.findOne({ trackCode: trackCode }).populate('OrderStatusId', 'OrderStatusDesc' );
+        const order = await Order.findOne({ trackCode })
+            .populate('OrderStatusId', 'OrderStatusDesc')
 
         if (!order) {
-            return res.json({msg: 'order Not Found'});
+            return res.status(404).json({ msg: 'Order Not Found' });
         }
 
-        const status = order.OrderStatusId;
 
-        if (!order) {
-            return res.json({msg: 'Order Not Found'});
-        }
-
-        const orderProducts = await OrderProduct.find({ OrderId: order._id })
+        const orderProducts = await OrderProduct.findOne({ OrderId: order._id })
             .populate('ProductId');
 
-        if (!orderProducts) {
-            return res.json([]);
-        }
-
-        const orderServices = await OrderService.find({ OrderId: order._id })
+        const orderServices = await OrderService.findOne({ OrderId: order._id })
             .populate('ServiceId');
 
-        if (!orderServices) {
-            return res.json([]);
+
+        if (!orderProducts && !orderServices) {
+            return res.status(200).json({
+                budget: { itens: [], TotalPrice: 0, Approved: order.isApproved },
+                status: order.OrderStatusId
+            });
         }
 
+        let itens = [];
+        if (orderProducts) {
+            itens.push({
+                Type: 'Product',
+                Name: orderProducts.ProductId?.ProductName,
+                Quant: orderProducts.Quantity,
+                UnitPrice: orderProducts.UnitPriceAtOrder,
+
+            });
+        } else if (orderServices) {
+            itens.push({
+                Type: 'Service',
+                Name: orderServices.ServiceId?.ServiceName,
+                UnitPrice: orderServices.UnitPriceAtOrder
+            });
+        }
+    
+
         const budget = {
-            itens: [
-                ...orderProducts.map(op => ({
-                    Type: 'Product',
-                    Name: op.ProductId?.ProductName,
-                    Quant: op.Quantity,
-                    UnitPrice: op.UnitPriceAtOrder,
-                    Subtotal: op.Quantity * op.UnitPriceAtOrder
-                })),
-                ...orderServices.map(os => ({
-                    Type: 'Service',
-                    Name: os.ServiceId?.ServiceName,
-                    UnitPrice: os.UnitPriceAtOrder || os.ServiceId?.BasePrice
-                }))
-            ],
-            TotalPrice: order.totalPrice,
+            itens,
+            TotalAmount: order.TotalAmount,
             Approved: order.isApproved
         };
 
 
         return res.status(200).json({
             budget,
-            status
+            status: order.OrderStatusId
         });
 
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
 });
+
 
 router.get('/:id', authObjectId, async (req, res) => {
     const orderId = req.params.id;
