@@ -2,6 +2,8 @@ import express from 'express';
 const router = express.Router();
 import Order from '../models/OrderSchema.js';
 import OrderTrack from '../models/OrderTrackSchema.js';
+import OrderProduct from '../models/OrderProductSchema.js';
+import OrderService from '../models/OrderServiceSchema.js';
 import { calculateOrderTotal } from './calculateOrderTotal.js';
 import authObjectId from '../middleware/authObjectId.js';
 
@@ -36,16 +38,62 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
     const { trackCode } = req.params;
 
     try {
-        const order = await OrderTrack.findOne({TrackCode: trackCode}).populate('OrderId', 'Title')
-        .populate('OrderStatusId', 'OrderStatusDesc');
 
-        if (!order) {
-           return  res.json([]);
+        const orderTrack = await OrderTrack.findOne({ TrackCode: trackCode })
+            .populate('OrderStatusId');
+
+        if (!orderTrack) {
+            return res.json({msg: 'orderTrack Not Found'});
         }
 
-        res.status(200).json(order)
+        const order = await Order.findById(orderTrack.OrderId);
+
+        if (!order) {
+            return res.json({msg: 'Order Not Found'});
+        }
+
+        const orderProducts = await OrderProduct.find({ OrderId: order._id })
+            .populate('ProductId');
+        if (!orderProducts) {
+            return res.json([]);
+        }
+
+        const orderServices = await OrderService.find({ OrderId: order._id })
+            .populate('ServiceId');
+        if (!orderServices) {
+            return res.json([]);
+        }
+
+        const budget = {
+            itens: [
+                ...orderProducts.map(op => ({
+                    Type: 'Product',
+                    Name: op.ProductId?.ProductName,
+                    Quant: op.Quantity,
+                    UnitPrice: op.UnitPriceAtOrder,
+                    Subtotal: op.Quantity * op.UnitPriceAtOrder
+                })),
+                ...orderServices.map(os => ({
+                    Type: 'Service',
+                    Name: os.ServiceId?.ServiceName,
+                    UnitPrice: os.UnitPriceAtOrder || os.ServiceId?.BasePrice
+                }))
+            ],
+            TotalPrice: order.totalPrice,
+            Approved: order.isApproved
+        };
+
+        const trackOrder = {
+            Status: orderTrack.OrderStatusId?.OrderStatusDesc
+        };
+
+        return res.status(200).json({
+            budget,
+            trackOrder
+        });
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 });
 

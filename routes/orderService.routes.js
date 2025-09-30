@@ -55,6 +55,36 @@ router.post('/', async (req, res) => {
     }
 });
 
+
+router.put('/order/:orderId', async (req, res) => {
+    const { orderId } = req.params;
+    const { orderService } = req.body;
+
+    if (!orderId || !Array.isArray(orderService)) {
+        return res.status(400).json({ msg: 'Invalid data!' });
+    }
+
+    try {
+        await OrderService.deleteMany({ OrderId: orderId });
+        const newOrderService = orderService.map(op => ({
+            OrderId: orderId,
+            ServiceId: op.ServiceId,
+            Quantity: op.Quantity,
+            UnitPriceAtOrder: op.UnitPriceAtOrder
+        }));
+
+        const opCreated = await OrderService.insertMany(newOrderService);
+
+        res.status(200).json({
+            msg: 'OrderService updated successfully!',
+            orderService: opCreated
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.put('/:id', authObjectId, async (req, res) => {
     const orderServiceId = req.params.id;
     if (!orderServiceId) {
