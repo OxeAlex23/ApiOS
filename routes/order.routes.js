@@ -57,13 +57,12 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
         if (!orderProducts && !orderServices) {
             return res.status(200).json({
-                budget: { itens: [], TotalPrice: 0, Approved: order.isApproved },
+                budget: { itens: [], TotalAmount: 0, Approved: order.isApproved },
                 status: order.OrderStatusId
             });
         }
 
         let itens = [];
-        
         if (orderProducts) {
             itens.push({
                 Type: 'Product',
@@ -83,6 +82,7 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
         const budget = {
             itens,
+            TotalAmount: order.TotalAmount,
             Approved: order.isApproved
         };
 
