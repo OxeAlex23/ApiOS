@@ -42,6 +42,7 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
         const order = await Order.findOne({ trackCode })
             .populate('OrderStatusId', 'OrderStatusDesc')
+            .populate('BusinessId')
 
         if (!order) {
             return res.status(404).json({ msg: 'Order Not Found' });
@@ -65,17 +66,12 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
         let itens = [];
         if (orderProducts) {
             itens.push({
-                Type: 'Product',
-                Name: orderProducts.ProductId?.ProductName,
-                Quant: orderProducts.Quantity,
-                UnitPrice: orderProducts.UnitPriceAtOrder,
+                orderProducts
 
             });
         } else if (orderServices) {
             itens.push({
-                Type: 'Service',
-                Name: orderServices.ServiceId?.ServiceName,
-                UnitPrice: orderServices.UnitPriceAtOrder
+                orderServices,
             });
         }
     
@@ -88,6 +84,7 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
 
         return res.status(200).json({
+            order,
             budget,
             status: order.OrderStatusId
         });
