@@ -20,9 +20,25 @@ import employeeRoutes from './routes/employee.routes.js';
 import cors from 'cors';
 
 const app = express();
+// const origins = ["https://www.novoos.com.br"];
+
+// const corsOptions = {
+//     origin: (og, cb) => {
+
+//         if (origins.includes(og)) {
+//             cb(null, true);
+//         } else {
+//             cb(null, false);
+//         }
+//     },
+//     credentials: true,
+//     allowedHeaders: ["Content-Type", "Authorization"]
+// };
+
+app.use(cors());
+
 
 app.use(express.json());
-app.use(cors());
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/orderProducts', orderProductRoutes);

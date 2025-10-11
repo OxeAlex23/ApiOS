@@ -42,7 +42,7 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
         const order = await Order.findOne({ trackCode })
             .populate('OrderStatusId', 'OrderStatusDesc')
-            .populate('BusinessId')
+            .populate('BusinessId').populate('CustomerId')
 
         if (!order) {
             return res.status(404).json({ msg: 'Order Not Found' });
