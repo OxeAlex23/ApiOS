@@ -57,12 +57,22 @@ router.post('/', async (req, res) => {
         BusinessSituation,
         IsMEI,
         Coordinates,
-        LogoImgUrl
+        LogoImgUrl,
+        BrandPrimaryColor,
+        BrandSecondaryColor,
+        OwnerSignatureUrl,
+        ShowServicesProductsImages,
+        OwnerName,
+        Instagram,
+        Facebook,
+        Twitter,
+        Tiktok
+
     } = req.body;
 
     try {
 
-        if (!UserId || !BusinessName ) {
+        if (!UserId || !BusinessName) {
             return res.status(400).json({ msg: 'UserId and BusinessName are required!' });
         }
 
@@ -81,7 +91,17 @@ router.post('/', async (req, res) => {
             BusinessSituation,
             IsMEI,
             Coordinates,
-            LogoImgUrl
+            LogoImgUrl,
+            BrandPrimaryColor,
+            BrandSecondaryColor,
+            OwnerSignatureUrl,
+            ShowServicesProductsImages,
+            OwnerName,
+            Instagram,
+            Facebook,
+            Twitter,
+            Tiktok
+
         });
 
         const BusinessId = business._id;
@@ -125,7 +145,7 @@ router.post('/', async (req, res) => {
 
         const newOrderStatus = await OrderStatus.insertMany(orderStatusData, { ordered: false });
         const businessUser = await BusinessUser.create({ UserId, BusinessId });
-        
+
         res.status(200).json({ msg: 'business, businessUser and orderStatus created successfully!', business, businessUser, newOrderStatus });
 
     } catch (err) {
