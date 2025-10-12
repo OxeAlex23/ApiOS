@@ -40,20 +40,20 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
     try {
 
-        const order = await Order.findOne({ trackCode })
+        const order = await Order.findOne({ trackCode }, '-__v')
             .populate('OrderStatusId', 'OrderStatusDesc')
-            .populate('BusinessId').populate('CustomerId')
+            .populate('BusinessId', '-__v').populate('CustomerId', '-__v')
 
         if (!order) {
             return res.status(404).json({ msg: 'Order Not Found' });
         }
 
 
-        const orderProducts = await OrderProduct.findOne({ OrderId: order._id })
-            .populate('ProductId');
+        const orderProducts = await OrderProduct.findOne({ OrderId: order._id }, '-OrderId -__v')
+            .populate('ProductId', 'ProductName ProductImgUrl ProductDescription ');
 
-        const orderServices = await OrderService.findOne({ OrderId: order._id })
-            .populate('ServiceId');
+        const orderServices = await OrderService.findOne({ OrderId: order._id }, '-__v')
+            .populate('ServiceId', 'ServiceName ServiceDescription ServiceImgUrl');
 
 
         if (!orderProducts && !orderServices) {
@@ -85,8 +85,9 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
         return res.status(200).json({
             order,
-            budget,
-            status: order.OrderStatusId
+            itens
+            // budget,
+            // status: order.OrderStatusId
         });
 
     } catch (err) {
