@@ -48,33 +48,38 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
         }
 
 
-        const [orderProduct, orderService, business, customer, trackList] = await Promise.all([
-            OrderProduct.findOne({ OrderId: order._id }, '-OrderId -__v'),
-            OrderService.findOne({ OrderId: order._id }, '-__v'),
+        const [orderProducts, orderServices, business, customer, trackList] = await Promise.all([
+            OrderProduct.find({ OrderId: order._id }, '-OrderId -__v'),
+            OrderService.find({ OrderId: order._id }, '-__v'),
             Business.findById(order.BusinessId, '-__v'),
             Customer.findById(order.CustomerId, '-__v'),
             OrderTrack.find({ OrderId: order._id }, '-__v')
         ]);
 
-        const results = [orderProduct, orderService, business, customer, trackList].map(item => item || []);
-        const [productsResult, servicesResult, businessResult, customerResult, trackListResult] = results;
+        const products = await Promise.all(
+            orderProducts.map(async (op) => {
+                const productInfo = await Product.findById(op.ProductId,'ProductName ProductDescription ProductImgUrl');
+                return productInfo  ? { ...productInfo.toObject(), orderProduct: op } : [];
+            })
+        );
 
-        console.time('WithoutPromiseAll');
 
-        const products = productsResult?.ProductId ? await Product.find(productsResult.ProductId, '-__v') : [];
-        const services = servicesResult?.ServiceId ? await Service.find(servicesResult.ServiceId, '-__v') : [];
+        const services = await Promise.all(
+            orderServices.map(async (os) => {
+                const serviceInfo = await Service.findById(os.ServiceId, 'ServiceName ServiceDescription ServiceImgUrl');
+                return serviceInfo ? { ...serviceInfo.toObject(), orderService: os } : [];
+            })
+        );
 
-
-        console.timeEnd('WithoutPromiseAll')
 
 
         return res.status(200).json({
             order,
-            business: businessResult ,
-            customer: customerResult,
+            business,
+            customer,
             products,
             services,
-            trackList: trackListResult
+            trackList
         });
 
     } catch (err) {
