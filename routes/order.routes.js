@@ -48,28 +48,33 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
         }
 
 
-        const [ orderProduct, orderService, business,customer,  trackList  ] = await Promise.all([
+        const [orderProduct, orderService, business, customer, trackList] = await Promise.all([
             OrderProduct.findOne({ OrderId: order._id }, '-OrderId -__v'),
             OrderService.findOne({ OrderId: order._id }, '-__v'),
             Business.findById(order.BusinessId, '-__v'),
             Customer.findById(order.CustomerId, '-__v'),
-            OrderTrack.findOne({ OrderId: order._id }, '-__v')
+            OrderTrack.find({ OrderId: order._id }, '-__v')
         ]);
 
+        const results = [orderProduct, orderService, business, customer, trackList].map(item => item || []);
+        const [productsResult, servicesResult, businessResult, customerResult, trackListResult] = results;
 
-        const [product, service] = await Promise.all([
-            orderProduct ? Product.findById(orderProduct.ProductId) : null,
-            orderService ? Service.findById(orderService.ServiceId) : null
-        ]);
+        console.time('WithoutPromiseAll');
+
+        const products = productsResult?.ProductId ? await Product.find(productsResult.ProductId, '-__v') : [];
+        const services = servicesResult?.ServiceId ? await Service.find(servicesResult.ServiceId, '-__v') : [];
+
+
+        console.timeEnd('WithoutPromiseAll')
 
 
         return res.status(200).json({
             order,
-            business,
-            customer,
-            product,
-            service,
-            trackList
+            business: businessResult ,
+            customer: customerResult,
+            products,
+            services,
+            trackList: trackListResult
         });
 
     } catch (err) {
