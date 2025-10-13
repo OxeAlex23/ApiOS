@@ -48,7 +48,7 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
         }
 
 
-        const [  orderProduct,  orderService,  business,   customer,  trackList  ] = await Promise.all([
+        const [ orderProduct, orderService, business,customer,  trackList  ] = await Promise.all([
             OrderProduct.findOne({ OrderId: order._id }, '-OrderId -__v'),
             OrderService.findOne({ OrderId: order._id }, '-__v'),
             Business.findById(order.BusinessId, '-__v'),
