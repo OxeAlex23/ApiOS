@@ -6,7 +6,10 @@ import OrderProduct from '../models/OrderProductSchema.js';
 import OrderService from '../models/OrderServiceSchema.js';
 import { calculateOrderTotal } from './calculateOrderTotal.js';
 import authObjectId from '../middleware/authObjectId.js';
-import OrderStatus from '../models/OrderStatusSchema.js';
+import Product from '../models/ProductSchema.js';
+import Service from '../models/ServicesSchema.js';
+import Business from '../models/BusinessSchema.js';
+import Customer from '../models/CustomerSchema.js';
 
 router.get('/', async (req, res) => {
     const orders = await Order.find();
@@ -39,61 +42,41 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
     const { trackCode } = req.params;
 
     try {
-
-        const order = await Order.findOne({ trackCode }, '-__v')
-            .populate('OrderStatusId', 'OrderStatusDesc')
-            .populate('BusinessId', '-__v').populate('CustomerId', '-__v')
-
+        const order = await Order.findOne({ trackCode }, '-__v');
         if (!order) {
             return res.status(404).json({ msg: 'Order Not Found' });
         }
 
 
-        const orderProducts = await OrderProduct.findOne({ OrderId: order._id }, '-OrderId -__v')
-            .populate('ProductId', 'ProductName ProductImgUrl ProductDescription ');
+        const [  orderProduct,  orderService,  business,   customer,  trackList  ] = await Promise.all([
+            OrderProduct.findOne({ OrderId: order._id }, '-OrderId -__v'),
+            OrderService.findOne({ OrderId: order._id }, '-__v'),
+            Business.findById(order.BusinessId, '-__v'),
+            Customer.findById(order.CustomerId, '-__v'),
+            OrderTrack.findOne({ OrderId: order._id }, '-__v')
+        ]);
 
-        const orderServices = await OrderService.findOne({ OrderId: order._id }, '-__v')
-            .populate('ServiceId', 'ServiceName ServiceDescription ServiceImgUrl');
 
-
-        if (!orderProducts && !orderServices) {
-            return res.status(200).json({
-                budget: { itens: [], TotalAmount: 0, Approved: order.isApproved },
-                status: order.OrderStatusId
-            });
-        }
-
-        let itens = [];
-        if (orderProducts) {
-            itens.push({
-                orderProducts
-
-            });
-        } else if (orderServices) {
-            itens.push({
-                orderServices,
-            });
-        }
-    
-
-        const budget = {
-            itens,
-            TotalAmount: order.TotalAmount,
-            Approved: order.isApproved
-        };
+        const [product, service] = await Promise.all([
+            orderProduct ? Product.findById(orderProduct.ProductId) : null,
+            orderService ? Service.findById(orderService.ServiceId) : null
+        ]);
 
 
         return res.status(200).json({
             order,
-            itens
-            // budget,
-            // status: order.OrderStatusId
+            business,
+            customer,
+            product,
+            service,
+            trackList
         });
 
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
 });
+
 
 
 router.get('/:id', authObjectId, async (req, res) => {
