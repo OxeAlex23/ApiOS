@@ -155,40 +155,9 @@ router.post('/', async (req, res) => {
 
 
 router.put('/:id', async (req, res) => {
+    const businessId = req.params.id;
     try {
-        const businessId = req.params.id;
-        const business = await Business.findById(businessId);
-        if (!business) return res.status(404).json({ error: "Business not found" });
-
-        const {
-            BusinessName,
-            FantasyName,
-            BusinessType,
-            CompanySize,
-            LegalNature,
-            Address,
-            Email,
-            Phone,
-            BusinessCode,
-            BusinessSituation,
-            IsMEI,
-            Coordinates
-        } = req.body;
-
-        if (BusinessName) business.BusinessName = BusinessName;
-        if (FantasyName) business.FantasyName = FantasyName;
-        if (BusinessType) business.BusinessType = BusinessType;
-        if (CompanySize) business.CompanySize = CompanySize;
-        if (LegalNature) business.LegalNature = LegalNature;
-        if (Address) business.Address = Address;
-        if (Email) business.Email = Email;
-        if (BusinessCode) business.BusinessCode = BusinessCode;
-        if (BusinessSituation) business.BusinessSituation = BusinessSituation;
-        if (IsMEI) business.IsMEI = IsMEI;
-        if (Coordinates) business.Coordinates = Coordinates;
-
-        await business.save();
-
+        const business = await Business.findByIdAndUpdate(businessId, req.body, { new: true });
         res.status(200).json({ msg: "Business updated successfully!", business });
 
     } catch (err) {

@@ -71,7 +71,7 @@ router.patch('/defaultBusiness/:userId', async (req, res) => {
     }
 
 
-    const user = await User.findByIdAndUpdate(userId, { DefaultBusinessId }, { new: true });
+    const user = await User.findByIdAndUpdate(userId, { DefaultBusinessId }, { new: true }).select('-Password');
 
     if (!user) {
       return res.status(404).json({ msg: 'User Not Found!' });
@@ -183,7 +183,7 @@ router.put('/:id', authObjectId, async (req, res) => {
   const userId = req.params.id;
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true }).select('-Password');
     if (!updatedUser) {
       return res.status(404).json({ msg: 'user Not Found!' });
     }
@@ -201,7 +201,7 @@ router.patch('/recovery-password/:id', authObjectId, async (req, res) => {
     const salt = 10;
     const hashPassword = await bcrypt.hash(Password, salt);
 
-    const updatedUser = await User.findByIdAndUpdate(userId, { Password: hashPassword }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(userId, { Password: hashPassword }, { new: true }).select('-Password');
     if (!updatedUser) {
       return res.status(404).json({ msg: 'user Not Found!' });
     }
@@ -213,7 +213,7 @@ router.patch('/recovery-password/:id', authObjectId, async (req, res) => {
 
 router.delete('/:id', authObjectId, async (req, res) => {
 
-  const userDeleted = await User.findByIdAndDelete(req.params.id);
+  const userDeleted = await User.findByIdAndDelete(req.params.id).select('-Password');
 
   if (!userDeleted) {
     res.status(404).json({ msg: 'user Not Found!' })
