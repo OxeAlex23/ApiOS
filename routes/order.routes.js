@@ -113,12 +113,12 @@ router.get('/:id', authObjectId, async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const { Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority } = req.body;
+    const { Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, TrackCode, RelatedEmployees, Priority } = req.body;
     if (!Title || !UserId || !BusinessId || !CustomerId || !OrderStatusId) {
         return res.status(400).json({ error: 'All required fields must be completed!' });
     }
     try {
-        const order = await Order.create({ Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority });
+        const order = await Order.create({ Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, TrackCode, RelatedEmployees, Priority });
         res.status(201).json({ msg: 'order created successfully!', order });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -126,12 +126,12 @@ router.post('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const { Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority } = req.body;
+    const { Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, TrackCode, RelatedEmployees, Priority } = req.body;
 
 
     try {
 
-        const newOrder = await Order.create({ Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, trackCode, RelatedEmployees, Priority });
+        const newOrder = await Order.create({ Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, TrackCode, RelatedEmployees, Priority });
 
         await calculateOrderTotal(newOrder._id);
 
