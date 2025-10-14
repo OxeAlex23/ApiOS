@@ -177,7 +177,17 @@ router.get('/:id', authObjectId, async (req, res) => {
   }
 });
 
+router.put('/logo/:id', async (req, res) => {
+  const { id } = req.params;
+  const { UserImgUrl } = req.body;
 
+  try {
+    const userLogo = await User.findByIdAndUpdate(id, { $set: { UserImgUrl } }, { new: true }).select('-Password');
+    res.status(200).json({ msg: 'user logo updated successfully!', userLogo })
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 router.put('/:id', authObjectId, async (req, res) => {
   const userId = req.params.id;

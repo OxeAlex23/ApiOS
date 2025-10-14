@@ -64,6 +64,22 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.put('/logo/:id', async (req, res) => {
+    const { id } = req.params;
+    const { LogoImgUrl } = req.body;
+
+    if (!id) {
+        return res.status(404).json({ msg: 'data invalid!' });
+    }
+
+    try {
+        const customerLogo = await Customer.findByIdAndUpdate(id, { $set: { LogoImgUrl } }, { new: true });
+        res.status(200).json({ msg: 'customer logo updated successfully!', customerLogo });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.put('/:id', authObjectId, async (req, res) => {
     const customerId = req.params.id;
     if (!customerId) {
