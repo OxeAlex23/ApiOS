@@ -139,20 +139,20 @@ router.get('/checkEmail', async (req, res) => {
 });
 
 router.get('/:id/businesses', async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-        return res.status(404).json({msg: 'user Not Found'});
+  const { id } = req.params;
+  if (!id) {
+    return res.status(404).json({ msg: 'user Not Found' });
+  }
+  try {
+    const businesses = await Business.find({ UserId: id });
+    if (!businesses) {
+      return res.json([]);
     }
-    try {
-        const businesses = await Business.find({UserId: id});
-        if (!businesses) {
-            return res.json([]);
-        }
 
-        res.status(201).json(businesses);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    res.status(201).json(businesses);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.get('/', async (req, res) => {
@@ -183,7 +183,8 @@ router.put('/:id', authObjectId, async (req, res) => {
   const userId = req.params.id;
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true }).select('-Password');
+    const { Password, ...updateData } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).select('-Password');
     if (!updatedUser) {
       return res.status(404).json({ msg: 'user Not Found!' });
     }

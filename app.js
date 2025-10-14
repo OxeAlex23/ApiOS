@@ -57,7 +57,7 @@ app.use('/employees', employeeRoutes);
 
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;
-mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@alex0.xoui1gx.mongodb.net/?retryWrites=true&w=majority&appName=Alex0`).then(() => {
+mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@alex0.xoui1gx.mongodb.net/?retryWrites=true&w=majority&appName=Alex0`, { autoIndex: false }).then(() => {
     app.listen(process.env.PORT);
     console.log('connected to data base!');
 }).catch (err => console.error(err)); 
