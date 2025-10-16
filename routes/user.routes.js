@@ -190,19 +190,26 @@ router.put('/logo/:id', async (req, res) => {
 });
 
 router.put('/:id', authObjectId, async (req, res) => {
-  const userId = req.params.id;
+   const userId = req.params.id;
 
   try {
     const { Password, ...updateData } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).select('-Password');
-    if (!updatedUser) {
-      return res.status(404).json({ msg: 'user Not Found!' });
+
+    if (Password) {
+      const salt = 10;
+      const PasswordHash = await bcrypt.hash(Password, salt);
+      
+      updateData.Password = PasswordHash;
     }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true, }).select('-Password');
+
     res.status(200).json(updatedUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 router.patch('/recovery-password/:id', authObjectId, async (req, res) => {
   const userId = req.params.id;
