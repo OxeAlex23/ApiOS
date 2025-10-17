@@ -42,7 +42,7 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
     const { trackCode } = req.params;
 
     try {
-        const order = await Order.findOne({ trackCode }, '-__v');
+        const order = await Order.findOne({ TrackCode: trackCode }, '-__v');
         if (!order) {
             return res.status(404).json({ msg: 'Order Not Found' });
         }
@@ -58,7 +58,7 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
 
         const products = await Promise.all(
             orderProducts.map(async (op) => {
-                const productInfo = await Product.findById(op.ProductId,'ProductName ProductDescription ProductImgUrl');
+                const productInfo = await Product.findById(op.ProductId, 'ProductName ProductDescription ProductImgUrl');
                 return productInfo  ? { ...productInfo.toObject(), orderProduct: op } : [];
             })
         );
@@ -113,25 +113,10 @@ router.get('/:id', authObjectId, async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const { Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, TrackCode, RelatedEmployees, Priority } = req.body;
-    if (!Title || !UserId || !BusinessId || !CustomerId || !OrderStatusId) {
-        return res.status(400).json({ error: 'All required fields must be completed!' });
-    }
-    try {
-        const order = await Order.create({ Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, TrackCode, RelatedEmployees, Priority });
-        res.status(201).json({ msg: 'order created successfully!', order });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-router.post('/', async (req, res) => {
-    const { Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, TrackCode, RelatedEmployees, Priority } = req.body;
-
 
     try {
 
-        const newOrder = await Order.create({ Title, UserId, BusinessId, CustomerId, OrderStatusId, TotalAmount, DiscountAmount, Notes, TrackCode, RelatedEmployees, Priority });
+        const newOrder = await Order.create(req.body);
 
         await calculateOrderTotal(newOrder._id);
 
