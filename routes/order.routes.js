@@ -10,6 +10,8 @@ import Product from '../models/ProductSchema.js';
 import Service from '../models/ServicesSchema.js';
 import Business from '../models/BusinessSchema.js';
 import Customer from '../models/CustomerSchema.js';
+import ProductCategory from '../models/ProductCategorySchema.js';
+import Employees from '../models/EmployeeSchema.js';
 
 router.get('/', async (req, res) => {
     const orders = await Order.find();
@@ -19,6 +21,21 @@ router.get('/', async (req, res) => {
     res.json(orders);
 });
 
+router.get('/ordersByBusiness/:businessId/:orderStatusId', async (req, res) => {
+    const { businessId, orderStatusId } = req.params;
+    try {
+        const orders = await Order.find({ BusinessId: businessId });
+
+        if (orders.length === 0) {
+            return res.json([]);
+        }
+
+        const orderByStatus = orders.filter(os => os.OrderStatusId._id?.toString() === orderStatusId);
+        res.status(200).json(orderByStatus);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 
 router.get('/ordersByBusiness/:businessId', async (req, res) => {
@@ -31,11 +48,162 @@ router.get('/ordersByBusiness/:businessId', async (req, res) => {
         if (!orders) {
             return res.json([]);
         }
-        res.json(orders);
+        res.status(200).json(orders);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 
+});
+
+router.get('/ordersByBusinessInProgress/:businessId', async (req, res) => {
+    const { businessId } = req.params;
+    try {
+        const orders = await Order.find({ BusinessId: businessId }).populate("OrderStatusId", "OrderStatusDesc");
+        if (orders.length === 0) {
+            return res.json([]);
+        }
+
+        const ordersInProgress = orders.filter(os => !["Cancelado", "Concluído"].includes(os.OrderStatusId?.OrderStatusDesc));
+
+        res.status(200).json(ordersInProgress || []);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
+    const { BusinessId } = req.params;
+     const { StartDate, EndDate } = req.body; // falta adicionar os filtros de data
+    try {
+        
+        const orders = await Order.find({ BusinessId }).populate("OrderStatusId", "OrderStatusDesc");
+        if (orders.length === 0) {
+            return res.json([]);
+        }
+
+        let inProcessOrders = [];
+        let completedOrders = [];
+        let canceledOrders = [];
+
+        for (const os of orders) {
+            const status = os.OrderStatusId?.OrderStatusDesc;
+            if (status === "Concluído") {
+                completedOrders.push(os)
+            } else if (status === "Cancelado") {
+                canceledOrders.push(os)
+            } else {
+                inProcessOrders.push(os)
+            }
+        }
+        const inProcessRevenue = inProcessOrders.filter(os => os.TotalAmount).reduce((sum, os) => sum + os.TotalAmount, 0);
+        const completedRevenue = completedOrders.filter(os => os.TotalAmount).reduce((sum, os) => sum + os.TotalAmount, 0);
+        const canceledRevenue = canceledOrders.filter(os => os.TotalAmount).reduce((sum, os) => sum + os.TotalAmount, 0);
+        const orderIds = completedOrders.map(os => os._id);
+
+        const [services, products] = await Promise.all([
+            OrderService.find({ OrderId: { $in: orderIds } }).populate("ServiceId", "ServiceName"),
+            OrderProduct.find({ OrderId: { $in: orderIds } }).populate("ProductId", "ProductName ProductCategoryId")
+        ]);
+
+        const mostCommonServices = services.reduce((acmSer, ser) => {
+            const name = ser.ServiceId?.ServiceName;
+            const quantity = ser.Quantity || 1;
+
+            if (!acmSer[name]) {
+                acmSer[name] = { name, quantity: 0 }
+            }
+            acmSer[name].quantity += quantity;
+            return acmSer
+        }, {});
+
+        const sortedService = Object.values(mostCommonServices).sort((a, b) => b.quantity - a.quantity);
+        const topFiveSer = sortedService.slice(0, 5);
+
+        const mostSoldProducts = products.reduce((acmPro, pro) => {
+            const name = pro.ProductId?.ProductName;
+            const quantity = pro.Quantity || 1;
+
+            if (!acmPro[name]) {
+                acmPro[name] = { name, quantity: 0 };
+            }
+
+            acmPro[name].quantity += quantity;
+            return acmPro;
+        }, {});
+
+        const sortedProduct = Object.values(mostSoldProducts).sort((a, b) => b.quantity - a.quantity);
+        const topFivePro = sortedProduct.slice(0, 5);
+
+        const productCategoriesIds = products.map(p => p.ProductId?.ProductCategoryId.toString());
+        const categories = await ProductCategory.find({ _id: { $in: productCategoriesIds } });
+
+        const countCat = categories.reduce((sum, cat) => {
+            const name = cat.ProductCategoryDesc;
+            const quantity = 1;
+
+            if (!sum[name]) {
+                sum[name] = { name, quantity: 0 }
+            }
+
+            sum[name].quantity += quantity;
+            return sum;
+        }, {});
+
+        const sortedCategories = Object.values(countCat).sort((a, b) => b.quantity - a.quantity);
+        const topFiveCategories = sortedCategories.slice(0, 5);
+
+        const [customersResult, employeesResult, productsResult, servicesResult] = await Promise.allSettled([
+            Customer.find({ BusinessId }),
+            Employees.find({ BusinessId }),
+            Product.find({ BusinessId }),
+            Service.find({ BusinessId })
+        ]);
+
+        const customers = customersResult.status === 'fulfilled' ? customersResult.value : [];
+        const employees = employeesResult.status === 'fulfilled' ? employeesResult.value : [];
+        const productsByBusiness = productsResult.status === 'fulfilled' ? productsResult.value : [];
+        const servicesByBusiness = servicesResult.status === 'fulfilled' ? servicesResult.value : [];
+
+        const customersCount = customers.length;
+        const employeesCount = employees.length;
+        const productsCount = productsByBusiness.length;
+        const servicesCount = servicesByBusiness.length;
+
+        res.status(200).json({
+            Os: {
+                TotalOrders: orders.length,
+                InProcessOrders: inProcessOrders.length,
+                CompletedOrders: completedOrders.length,
+                CanceledOrders: canceledOrders.length
+            },
+            ValuesInOrdes: {
+                InProcessRevenue: inProcessRevenue,
+                CompletedRevenue: completedRevenue,
+                CanceledRevenue: canceledRevenue
+            },
+            MostCommonServices: topFiveSer.map(item => ({
+                Name: item.name,
+                Quantity: item.quantity
+            })) || [],
+            MostSoldProducts: topFivePro.map(item => ({
+                Name: item.name,
+                Quantity: item.quantity
+            })) || [],
+            MostSoldCategories: topFiveCategories.map(item => ({
+                Name: item.name,
+                Quantity: item.quantity
+            })) || [],
+            NewRecords: {
+                TotalClients: customersCount,
+                TotalProducts: productsCount,
+                TotalServices: servicesCount,
+                TotalProfissionals: employeesCount
+            }
+        });
+    
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 router.get('/orderByTrackCode/:trackCode', async (req, res) => {
@@ -59,7 +227,7 @@ router.get('/orderByTrackCode/:trackCode', async (req, res) => {
         const products = await Promise.all(
             orderProducts.map(async (op) => {
                 const productInfo = await Product.findById(op.ProductId, 'ProductName ProductDescription ProductImgUrl');
-                return productInfo  ? { ...productInfo.toObject(), orderProduct: op } : [];
+                return productInfo ? { ...productInfo.toObject(), orderProduct: op } : [];
             })
         );
 
