@@ -13,7 +13,8 @@ const productSchema = new Schema({
     WeightGrams: Number,
     DimensionsCm: String,
     IsActive: Boolean,
-    BusinessId: {type: mongoose.Types.ObjectId, ref: "Business"}
+    BusinessId: {type: mongoose.Types.ObjectId, ref: "Business"},
+    CreatedAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.model('Product', productSchema);
