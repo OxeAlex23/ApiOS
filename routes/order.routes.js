@@ -73,135 +73,118 @@ router.get('/ordersByBusinessInProgress/:businessId', async (req, res) => {
 
 router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
     const { BusinessId } = req.params;
-     const { StartDate, EndDate } = req.body; // falta adicionar os filtros de data
-    try {
-        
-        const orders = await Order.find({ BusinessId }).populate("OrderStatusId", "OrderStatusDesc");
-        if (orders.length === 0) {
-            return res.json([]);
-        }
+    const { StartDate, EndDate } = req.body;
 
+    try {
+        const today = new Date();
+        const end = EndDate ? new Date(EndDate) : null;
+        const isToday = end && end.toDateString() === today.toDateString();
+
+        const filter = {
+            BusinessId,
+            CanceledAt: { $exists: false },
+            FinishedAt: { $exists: false },
+            ...(StartDate && { createdAt: { $gte: new Date(StartDate) } }),
+        };
+     
+        if (isToday) {
+            const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+            filter.createdAt = { ...filter.createdAt, $lte: endOfDay };
+        }
+      
+        const orders = await Order.find(filter).populate("OrderStatusId", "OrderStatusDesc");
+
+        if (orders.length === 0) return res.json([]);
+    
         let inProcessOrders = [];
         let completedOrders = [];
         let canceledOrders = [];
 
         for (const os of orders) {
             const status = os.OrderStatusId?.OrderStatusDesc;
-            if (status === "Concluído") {
-                completedOrders.push(os)
-            } else if (status === "Cancelado") {
-                canceledOrders.push(os)
-            } else {
-                inProcessOrders.push(os)
-            }
+            if (status === "Concluído") completedOrders.push(os);
+            else if (status === "Cancelado") canceledOrders.push(os);
+            else inProcessOrders.push(os);
         }
-        const inProcessRevenue = inProcessOrders.filter(os => os.TotalAmount).reduce((sum, os) => sum + os.TotalAmount, 0);
-        const completedRevenue = completedOrders.filter(os => os.TotalAmount).reduce((sum, os) => sum + os.TotalAmount, 0);
-        const canceledRevenue = canceledOrders.filter(os => os.TotalAmount).reduce((sum, os) => sum + os.TotalAmount, 0);
+       
+        let inProcessRevenue = inProcessOrders.reduce((sum, os) => sum + (os.TotalAmount || 0), 0);
+        const completedRevenue = completedOrders.reduce((sum, os) => sum + (os.TotalAmount || 0), 0);
+        const canceledRevenue = canceledOrders.reduce((sum, os) => sum + (os.TotalAmount || 0), 0);
+
+        if (!isToday) {
+            inProcessOrders = [];
+            inProcessRevenue = [];
+        }
+
         const orderIds = completedOrders.map(os => os._id);
 
         const [services, products] = await Promise.all([
             OrderService.find({ OrderId: { $in: orderIds } }).populate("ServiceId", "ServiceName"),
-            OrderProduct.find({ OrderId: { $in: orderIds } }).populate("ProductId", "ProductName ProductCategoryId")
+            OrderProduct.find({ OrderId: { $in: orderIds } }).populate("ProductId", "ProductName ProductCategoryId"),
         ]);
 
         const mostCommonServices = services.reduce((acmSer, ser) => {
             const name = ser.ServiceId?.ServiceName;
             const quantity = ser.Quantity || 1;
-
-            if (!acmSer[name]) {
-                acmSer[name] = { name, quantity: 0 }
-            }
-            acmSer[name].quantity += quantity;
-            return acmSer
+            acmSer[name] = acmSer[name] ? { name, quantity: acmSer[name].quantity + quantity } : { name, quantity: quantity };
+            return acmSer;
         }, {});
-
-        const sortedService = Object.values(mostCommonServices).sort((a, b) => b.quantity - a.quantity);
-        const topFiveSer = sortedService.slice(0, 5);
+        const topFiveSer = Object.values(mostCommonServices).sort((a, b) => b.quantity - a.quantity).slice(0, 5);
 
         const mostSoldProducts = products.reduce((acmPro, pro) => {
             const name = pro.ProductId?.ProductName;
             const quantity = pro.Quantity || 1;
-
-            if (!acmPro[name]) {
-                acmPro[name] = { name, quantity: 0 };
-            }
-
-            acmPro[name].quantity += quantity;
+            acmPro[name] = acmPro[name] ? { name, quantity: acmPro[name].quantity + uantiquantity } : { name, quantity: quantity };
             return acmPro;
         }, {});
+        const topFivePro = Object.values(mostSoldProducts).sort((a, b) => b.quantity - a.quantity).slice(0, 5);
 
-        const sortedProduct = Object.values(mostSoldProducts).sort((a, b) => b.quantity - a.quantity);
-        const topFivePro = sortedProduct.slice(0, 5);
-
-        const productCategoriesIds = products.map(p => p.ProductId?.ProductCategoryId.toString());
+        const productCategoriesIds = products.map(p => p.ProductId?.ProductCategoryId?.toString());
         const categories = await ProductCategory.find({ _id: { $in: productCategoriesIds } });
-
         const countCat = categories.reduce((sum, cat) => {
             const name = cat.ProductCategoryDesc;
-            const quantity = 1;
-
-            if (!sum[name]) {
-                sum[name] = { name, quantity: 0 }
-            }
-
-            sum[name].quantity += quantity;
+            sum[name] = sum[name] ? { name, quantity: sum[name].quantity + 1 } : { name, quantity: 1 };
             return sum;
         }, {});
-
-        const sortedCategories = Object.values(countCat).sort((a, b) => b.quantity - a.quantity);
-        const topFiveCategories = sortedCategories.slice(0, 5);
+        const topFiveCategories = Object.values(countCat).sort((a, b) => b.quantity - a.quantity).slice(0, 5);
 
         const [customersResult, employeesResult, productsResult, servicesResult] = await Promise.allSettled([
             Customer.find({ BusinessId }),
             Employees.find({ BusinessId }),
             Product.find({ BusinessId }),
-            Service.find({ BusinessId })
+            Service.find({ BusinessId }),
         ]);
 
-        const customers = customersResult.status === 'fulfilled' ? customersResult.value : [];
-        const employees = employeesResult.status === 'fulfilled' ? employeesResult.value : [];
-        const productsByBusiness = productsResult.status === 'fulfilled' ? productsResult.value : [];
-        const servicesByBusiness = servicesResult.status === 'fulfilled' ? servicesResult.value : [];
+        const customers = customersResult.value || [];
+        const employees = employeesResult.value || [];
+        const productsByBusiness = productsResult.value || [];
+        const servicesByBusiness = servicesResult.value || [];
 
-        const customersCount = customers.length;
-        const employeesCount = employees.length;
-        const productsCount = productsByBusiness.length;
-        const servicesCount = servicesByBusiness.length;
-
-        res.status(200).json({
+        return res.status(200).json({
             Os: {
                 TotalOrders: orders.length,
                 InProcessOrders: inProcessOrders.length,
                 CompletedOrders: completedOrders.length,
-                CanceledOrders: canceledOrders.length
+                CanceledOrders: canceledOrders.length,
             },
             ValuesInOrdes: {
                 InProcessRevenue: inProcessRevenue,
                 CompletedRevenue: completedRevenue,
-                CanceledRevenue: canceledRevenue
+                CanceledRevenue: canceledRevenue,
             },
-            MostCommonServices: topFiveSer.map(item => ({
-                Name: item.name,
-                Quantity: item.quantity
-            })) || [],
-            MostSoldProducts: topFivePro.map(item => ({
-                Name: item.name,
-                Quantity: item.quantity
-            })) || [],
-            MostSoldCategories: topFiveCategories.map(item => ({
-                Name: item.name,
-                Quantity: item.quantity
-            })) || [],
+            MostCommonServices: topFiveSer,
+            MostSoldProducts: topFivePro,
+            MostSoldCategories: topFiveCategories,
             NewRecords: {
-                TotalClients: customersCount,
-                TotalProducts: productsCount,
-                TotalServices: servicesCount,
-                TotalProfissionals: employeesCount
-            }
+                TotalClients: customers.length,
+                TotalProducts: productsByBusiness.length,
+                TotalServices: servicesByBusiness.length,
+                TotalProfissionals: employees.length,
+            },
         });
-    
+        
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: err.message });
     }
 });
