@@ -86,16 +86,16 @@ router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
             FinishedAt: { $exists: false },
             ...(StartDate && { createdAt: { $gte: new Date(StartDate) } }),
         };
-     
+
         if (isToday) {
             const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
             filter.createdAt = { ...filter.createdAt, $lte: endOfDay };
         }
-      
+
         const orders = await Order.find(filter).populate("OrderStatusId", "OrderStatusDesc");
 
         if (orders.length === 0) return res.json([]);
-    
+
         let inProcessOrders = [];
         let completedOrders = [];
         let canceledOrders = [];
@@ -106,10 +106,24 @@ router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
             else if (status === "Cancelado") canceledOrders.push(os);
             else inProcessOrders.push(os);
         }
-       
-        let inProcessRevenue = inProcessOrders.reduce((sum, os) => sum + (os.TotalAmount || 0), 0);
-        const completedRevenue = completedOrders.reduce((sum, os) => sum + (os.TotalAmount || 0), 0);
-        const canceledRevenue = canceledOrders.reduce((sum, os) => sum + (os.TotalAmount || 0), 0);
+
+       // let inProcessRevenue = inProcessOrders.reduce((sum, os) => sum + (os.TotalAmount || 0), 0);
+        const completedRevenue = completedOrders.reduce((sum, os) => {
+            const total = (os.TotalAmount || 0) + (os.AdditionValue || 0);
+            return sum + total;
+        }, 0);
+        const inProcessRevenue = inProcessOrders.reduce((sum, os) => {
+            const total = (os.TotalAmount || 0) + (os.AdditionValue || 0);
+            return sum + total;
+        }, 0);
+
+        const canceledRevenue = canceledOrders.reduce((sum, os) => {
+            const total = (os.TotalAmount || 0) + (os.AdditionValue || 0);
+            return sum + total;
+        }, 0);
+
+
+      //  const canceledRevenue = canceledOrders.reduce((sum, os) => sum + (os.TotalAmount || 0), 0);
 
         if (!isToday) {
             inProcessOrders = [];
@@ -182,7 +196,7 @@ router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
                 TotalProfissionals: employees.length,
             },
         });
-        
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
