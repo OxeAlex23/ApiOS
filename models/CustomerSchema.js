@@ -14,7 +14,7 @@ const CustomerSchema = new mongoose.Schema({
     DocNumber: { type: String, required: true },
     LegalNature: { type: String },
     IsMEI: { type: Boolean },
-    CreateAt: { type: Date, default: Date.now },
+    CreatedAt: { type: Date, default: Date.now },
     IsActive: { type: Boolean, default: true }
 });
 

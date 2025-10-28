@@ -24,9 +24,9 @@ const OrderSchema = new mongoose.Schema({
     Priority: { type: Number, enum: [1, 2, 3], default: 1 },
     ShowOrderNotesToCustomer: { type: Boolean },
     CanceledAt: {type: Date},
-    FinishedAt: {type: Date}
-},
-    { timestamps: true }
+    FinishedAt: {type: Date},
+    CreatedAt: {type: Date, default: Date.now}
+}
 );
 
 export default mongoose.model('Order', OrderSchema);

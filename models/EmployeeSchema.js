@@ -5,7 +5,7 @@ const EmployeeSchema = new mongoose.Schema({
     JobTitle: { type: String, required: true },
     EmployeeImgUrl: { type: String },
     BusinessId: { type: mongoose.Types.ObjectId, ref: 'Business', required: true },
-    CreateAt: { type: Date, default: Date.now },
+    CreatedAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.model('Employee', EmployeeSchema);
