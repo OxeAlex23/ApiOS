@@ -7,7 +7,7 @@ const ServicesSchema = new mongoose.Schema({
     BasePrice: Number,
     ServiceImgUrl: String,
     IsActive: {type: Boolean, default: true},
-    CreateAt: { type: Date, default: Date.now },
+    CreatedAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.model('Services', ServicesSchema); 

@@ -25,7 +25,7 @@ const BusinessSchema = new mongoose.Schema({
   Facebook: {type: String},
   Twitter: {type: String},
   Tiktok: {type: String},
-  CreateAt: { type: Date, default: Date.now },
+  CreatedAt: { type: Date, default: Date.now },
   IsActive: { type: Boolean, default: true },
 });
 

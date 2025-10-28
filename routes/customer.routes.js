@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 
-});
+}); 
 
 router.get('/customersByBusiness/:businessId', async (req, res) => {
     const { businessId } = req.params;

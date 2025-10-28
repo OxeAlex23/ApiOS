@@ -192,12 +192,16 @@ router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
             ...((StartDate || EndDate) && {
                 CreatedAt: {
                     ...(StartDate && { $gte: new Date(StartDate) }),
-                    ...(EndDate && { $lte: new Date(EndDate) })
+                    ...(EndDate && {
+                        $lte: (() => {
+                            const end = new Date(EndDate);
+                            end.setHours(23, 59, 59, 999); 
+                            return end;
+                        })()
+                    })
                 }
             })
         };
-
-
 
         const [customersResult, employeesResult, productsResult, servicesResult] = await Promise.allSettled([
             Customer.find(filterNewsRecords),
@@ -205,7 +209,7 @@ router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
             Product.find(filterNewsRecords),
             Service.find(filterNewsRecords),
         ]);
-        
+
 
         const customers = customersResult.value || [];
         const employees = employeesResult.value || [];
