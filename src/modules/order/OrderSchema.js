@@ -23,9 +23,13 @@ const OrderSchema = new mongoose.Schema({
     BudgetValidity: { type: Number },
     Priority: { type: Number, enum: [1, 2, 3], default: 1 },
     ShowOrderNotesToCustomer: { type: Boolean },
-    CanceledAt: {type: Date},
-    FinishedAt: {type: Date},
-    CreatedAt: {type: Date, default: Date.now}
+    CanceledAt: { type: Date },
+    FinishedAt: { type: Date }
+}, {
+    timestamps: {
+        createdAt: 'CreatedAt',
+        updatedAt: 'UpdatedAt'
+    }
 }
 );
 
