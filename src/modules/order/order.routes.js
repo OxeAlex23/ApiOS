@@ -40,10 +40,14 @@ router.get('/ordersByBusiness/:businessId/:orderStatusId', async (req, res) => {
 
 router.get('/ordersByBusiness/:businessId', async (req, res) => {
     const businessId = req.params.businessId;
+
     if (!businessId) {
         return res.status(404).json({ msg: 'business Not Found!' });
+
     }
+
     try {
+        
         const orders = await Order.find({ BusinessId: businessId });
         if (!orders) {
             return res.json([]);
@@ -80,29 +84,21 @@ router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
         const end = EndDate ? new Date(EndDate) : null;
         const isToday = end && end.toDateString() === today.toDateString();
 
-        const filter = {
-            BusinessId,
-            CanceledAt: { $exists: false },
-            FinishedAt: { $exists: false },
-        };
+        const filter = {};
 
         if (StartDate || EndDate) {
-            const dateFilter = {};
+            filter.CreatedAt = {};
 
             if (StartDate) {
-                dateFilter.$gte = new Date(StartDate);
+                filter.CreatedAt.$gte = new Date(StartDate);
             }
 
             if (EndDate) {
-                const endOfDay = isToday ? new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59) : new Date(EndDate);
-
-                dateFilter.$lte = endOfDay;
+                filter.CreatedAt.$lte = new Date(EndDate);
             }
-
-            filter.createdAt = dateFilter;
         }
-
-        const orders = await Order.find(filter).populate("OrderStatusId", "OrderStatusDesc");
+        console.log({ filter });
+        const orders = await Order.find({BusinessId, ...filter}).populate("OrderStatusId", "OrderStatusDesc");
 
         if (orders.length === 0) return res.json([]);
 
@@ -114,8 +110,11 @@ router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
             const status = os.OrderStatusId?.OrderStatusDesc;
             if (status === "Concluído") completedOrders.push(os);
             else if (status === "Cancelado") canceledOrders.push(os);
-            else inProcessOrders.push(os);
+            else if (status === "Em andamento" || status === "Aguardando Cliente" || status === "Orçamentos") inProcessOrders.push(os);
+
         }
+
+        console.log(inProcessOrders)
 
         let completedRevenue = completedOrders.reduce((sum, os) => {
             const total = (os.TotalAmount || 0) + (os.AdditionValue || 0);
@@ -195,7 +194,7 @@ router.get('/ordersInfoDashboard/:BusinessId', async (req, res) => {
                     ...(EndDate && {
                         $lte: (() => {
                             const end = new Date(EndDate);
-                            end.setHours(23, 59, 59, 999); 
+                            end.setHours(23, 59, 59, 999);
                             return end;
                         })()
                     })
