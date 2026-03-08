@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import Product from '../models/ProductSchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import Product from './ProductSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 import mongoose from 'mongoose';
 
 router.post('/', async (req, res) => {

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { calculateOrderTotal } from "../routes/calculateOrderTotal.js";
+import { calculateOrderTotal } from "./calculateOrderTotal.js";
 
 
 const OrderProductSchema = new mongoose.Schema({

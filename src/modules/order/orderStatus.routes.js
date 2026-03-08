@@ -1,8 +1,8 @@
 import express from 'express';
 const router = express.Router();
-import OrderStatus from '../models/OrderStatusSchema.js';
-import Order from '../models/OrderSchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import OrderStatus from './OrderStatusSchema.js';
+import Order from './OrderSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const orderStatus = await OrderStatus.find().populate('BusinessId', 'BusinessName');

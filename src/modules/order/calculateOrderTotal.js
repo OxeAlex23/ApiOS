@@ -1,5 +1,5 @@
-import OrderProduct from "../models/OrderProductSchema.js";
-import Order from "../models/OrderSchema.js";
+import OrderProduct from "./OrderProductSchema.js";
+import Order from "./OrderSchema.js";
 
 export const calculateOrderTotal = async (orderId) => {
     try {

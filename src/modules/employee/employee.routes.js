@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import Employee from '../models/EmployeeSchema.js';
-import authObjectId from '../middleware/authObjectId.js'
+import Employee from './EmployeeSchema.js';
+import authObjectId from '../../middleware/authObjectId.js'
 
 router.get('/', async (req, res) => {
     try {

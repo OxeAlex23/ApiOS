@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import OrderTrack from '../models/OrderTrackSchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import OrderTrack from './OrderTrackSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const orderTracks = await OrderTrack.find();

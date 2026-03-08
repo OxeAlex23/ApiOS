@@ -1,9 +1,9 @@
 import express from 'express';
-import User from '../models/UserSchema.js';
-import Business from '../models/BusinessSchema.js';
+import User from './UserSchema.js';
+import Business from '../business/BusinessSchema.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import authObjectId from '../middleware/authObjectId.js';
+import authObjectId from '../../middleware/authObjectId.js';
 import { OAuth2Client } from 'google-auth-library';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -178,6 +178,7 @@ router.get('/:id', authObjectId, async (req, res) => {
 });
 
 router.put('/logo/:id', async (req, res) => {
+  // ajustar prar receber o arquivo, subir pra um storage e retornar  so a url pra entao atualizar
   const { id } = req.params;
   const { UserImgUrl } = req.body;
 

@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import BusinessUser from '../models/BusinessUserSchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import BusinessUser from './BusinessUserSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const businessUsers = await BusinessUser.find();

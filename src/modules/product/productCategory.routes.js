@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import ProductCategory from '../models/ProductCategorySchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import ProductCategory from './ProductCategorySchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const productsCategory = await ProductCategory.find();

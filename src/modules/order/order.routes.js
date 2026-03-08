@@ -1,17 +1,17 @@
 import express from 'express';
 const router = express.Router();
-import Order from '../models/OrderSchema.js';
-import OrderTrack from '../models/OrderTrackSchema.js';
-import OrderProduct from '../models/OrderProductSchema.js';
-import OrderService from '../models/OrderServiceSchema.js';
+import Order from './OrderSchema.js';
+import OrderTrack from './OrderTrackSchema.js';
+import OrderProduct from './OrderProductSchema.js';
+import OrderService from './OrderServiceSchema.js';
 import { calculateOrderTotal } from './calculateOrderTotal.js';
-import authObjectId from '../middleware/authObjectId.js';
-import Product from '../models/ProductSchema.js';
-import Service from '../models/ServicesSchema.js';
-import Business from '../models/BusinessSchema.js';
-import Customer from '../models/CustomerSchema.js';
-import ProductCategory from '../models/ProductCategorySchema.js';
-import Employees from '../models/EmployeeSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
+import Product from '../product/ProductSchema.js';
+import Service from '../service/ServiceSchema.js';
+import Business from '../business/BusinessSchema.js';
+import Customer from '../customer/CustomerSchema.js';
+import ProductCategory from '../product/ProductCategorySchema.js';
+import Employees from '../employee/EmployeeSchema.js';
 
 router.get('/', async (req, res) => {
     const orders = await Order.find();

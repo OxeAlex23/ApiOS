@@ -1,8 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import Customer from '../models/CustomerSchema.js';
-import Business from '../models/BusinessSchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import Customer from './CustomerSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     try {

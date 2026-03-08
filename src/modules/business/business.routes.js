@@ -1,9 +1,9 @@
 import express from 'express';
 const router = express.Router();
-import Business from '../models/BusinessSchema.js';
-import BusinessUser from '../models/BusinessUserSchema.js';
-import OrderStatus from '../models/OrderStatusSchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import Business from './BusinessSchema.js';
+import BusinessUser from './BusinessUserSchema.js';
+import OrderStatus from '../order/OrderStatusSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const business = await Business.find();

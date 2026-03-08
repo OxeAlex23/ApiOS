@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import OrderService from '../models/OrderServiceSchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import OrderService from './OrderServiceSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const orderServices = await OrderService.find();

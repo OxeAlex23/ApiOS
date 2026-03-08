@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { calculateServiceTotal } from "../routes/calculateServiceTotal.js";
+import { calculateServiceTotal } from "./calculateServiceTotal.js";
 
 const OrderServiceSchema = new mongoose.Schema({
   OrderId: { type: mongoose.Types.ObjectId, ref: "Order", required: true },

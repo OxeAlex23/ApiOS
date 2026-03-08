@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import UserType from '../models/UserTypeSchema.js';
-import authObjectId from '../middleware/authObjectId.js';
+import UserType from './UserTypeSchema.js';
+import authObjectId from '../../middleware/authObjectId.js';
 
 router.get('/', async (req, res) => {
     const usersTypes = await UserType.find();
