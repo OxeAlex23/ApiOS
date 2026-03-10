@@ -10,14 +10,16 @@ import Product from '../product/ProductSchema.js';
 import Service from '../service/ServiceSchema.js';
 import Business from '../business/BusinessSchema.js';
 import Customer from '../customer/CustomerSchema.js';
-import ProductCategory from '../product/ProductCategorySchema.js';
 import Employees from '../employee/EmployeeSchema.js';
+import mongoose from 'mongoose';
 
 router.get('/', async (req, res) => {
+
     const orders = await Order.find();
     if (!orders) {
         return res.json([]);
     }
+
     res.json(orders);
 });
 
@@ -48,11 +50,11 @@ router.get('/ordersByBusiness/:businessId', async (req, res) => {
 
     try {
 
-        const orders = await Order.find({ BusinessId: businessId });
+        const orders = await Order.find({ BusinessId: businessId }).populate('OrderStatusId', 'OrderStatusDesc -_id');
         if (!orders) {
             return res.json([]);
         }
-        res.status(200).json(orders);
+        res.status(200).json({ orders, "total": orders.length });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -74,148 +76,407 @@ router.get('/ordersByBusinessInProgress/:businessId', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
 router.post('/ordersInfoDashboard/:BusinessId', async (req, res) => {
+
     const { BusinessId } = req.params;
     const { StartDate, EndDate } = req.body;
 
-    try {
-        // Validar datas
-        if ((StartDate && !EndDate) || (!StartDate && EndDate)) {
-            return res.status(400).json({
-                msg: "Both StartDate and EndDate must be provided"
-            });
-        }
-
-        // Construir filtro de datas uma única vez
-        const dateFilter = {};
-        if (StartDate && EndDate) {
-            const start = new Date(StartDate);
-            start.setUTCHours(0, 0, 0, 0);
-            const end = new Date(EndDate);
-            end.setUTCHours(23, 59, 59, 999);
-            dateFilter.CreatedAt = { $gte: start, $lte: end };
-        }
-
-        // Buscar todas as ordens com um único populate
-        const orders = await Order.find({ BusinessId, ...dateFilter }).populate("OrderStatusId", "OrderStatusDesc");
-
-        if (orders.length === 0) return res.json([]);
-
-        // Classificar e calcular revenues em uma única passagem
-        const stats = {
-            inProcessOrders: [],
-            completedOrders: [],
-            canceledOrders: [],
-            revenues: { inProcess: 0, completed: 0, canceled: 0 }
-        };
-
-        orders.forEach(os => {
-            const status = os.OrderStatusId?.OrderStatusDesc;
-            const total = (os.TotalAmount || 0) + (os.AdditionValue || 0);
-
-            if (status === "Concluído") {
-                stats.completedOrders.push(os);
-                stats.revenues.completed += total;
-            } else if (status === "Cancelado") {
-                stats.canceledOrders.push(os);
-                stats.revenues.canceled += total;
-            } else if (["Em andamento", "Aguardando Cliente", "Orçamentos"].includes(status)) {
-                stats.inProcessOrders.push(os);
-                stats.revenues.inProcess += total;
-            }
+    if ((StartDate && !EndDate) || (!StartDate && EndDate)) {
+        return res.status(400).json({
+            msg: "Both StartDate and EndDate must be provided"
         });
+    }
 
-        const completedOrderIds = stats.completedOrders.map(os => os._id);
+    try {
 
-        // Fazer requisições em paralelo
-        const [servicesResult, productsResult, totalOrders, customersResult, employeesResult, productsRecordsResult, servicesRecordsResult] = await Promise.allSettled([
-            OrderService.find({ OrderId: { $in: completedOrderIds } }).populate("ServiceId", "ServiceName"),
-            OrderProduct.find({ OrderId: { $in: completedOrderIds } }).populate("ProductId", "ProductName ProductCategoryId"),
-            Order.countDocuments({ BusinessId }),
-            Customer.find({ BusinessId, ...dateFilter }),
-            Employees.find({ BusinessId, ...dateFilter }),
-            Product.find({ BusinessId, ...dateFilter }),
-            Service.find({ BusinessId, ...dateFilter }),
+        console.time("DashboardStats");
+
+        const businessObjectId = new mongoose.Types.ObjectId(BusinessId);
+
+        const dateFilter = StartDate && EndDate
+            ? {
+                CreatedAt: {
+                    $gte: new Date(StartDate),
+                    $lte: new Date(EndDate)
+                }
+            }
+            : {};
+
+        const stats = await Order.aggregate([
+
+            {
+                $match: {
+                    BusinessId: businessObjectId
+                }
+            },
+            {
+                $facet: {
+
+                    periodStats: [
+
+                        ...(StartDate && EndDate ? [{ $match: dateFilter }] : []),
+
+                        {
+                            $addFields: {
+                                orderStatusObjId: {
+                                    $cond: [
+                                        { $and: [{ $ne: ["$OrderStatusId", null] }, { $ne: ["$OrderStatusId", ""] }] },
+                                        { $toObjectId: "$OrderStatusId" },
+                                        null
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "orderstatuses",
+                                localField: "orderStatusObjId",
+                                foreignField: "_id",
+                                as: "statusInfo"
+                            }
+                        },
+                        { $unwind: { path: "$statusInfo", preserveNullAndEmptyArrays: true } },
+                        {
+                            $addFields: {
+                                total: {
+                                    $add: [
+                                        { $ifNull: ["$TotalAmount", 0] },
+                                        { $ifNull: ["$AdditionValue", 0] }
+                                    ]
+                                },
+                                statusDesc: {
+                                    $ifNull: ["$statusInfo.OrderStatusDesc", "Desconhecido"]
+                                }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: null,
+
+                                PeriodTotalOrders: { $sum: 1 },
+
+                                PeriodInProcessOrders: {
+                                    $sum: {
+                                        $cond: [
+                                            { $not: { $in: ["$statusDesc", ["Concluído", "Cancelado"]] } },
+                                            1,
+                                            0
+                                        ]
+                                    }
+                                },
+
+                                PeriodCompletedOrders: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ["$statusDesc", "Concluído"] },
+                                            1,
+                                            0
+                                        ]
+                                    }
+                                },
+
+                                PeriodCanceledOrders: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ["$statusDesc", "Cancelado"] },
+                                            1,
+                                            0
+                                        ]
+                                    }
+                                },
+
+                                InProcessRevenue: {
+                                    $sum: {
+                                        $cond: [
+                                            { $not: { $in: ["$statusDesc", ["Concluído", "Cancelado"]] } },
+                                            "$total",
+                                            0
+                                        ]
+                                    }
+                                },
+
+                                CompletedRevenue: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ["$statusDesc", "Concluído"] },
+                                            "$total",
+                                            0
+                                        ]
+                                    }
+                                },
+
+                                CanceledRevenue: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ["$statusDesc", "Cancelado"] },
+                                            "$total",
+                                            0
+                                        ]
+                                    }
+                                },
+                                completedOrderIds: {
+                                    $push: {
+                                        $cond: [
+                                            { $eq: ["$statusDesc", "Concluído"] },
+                                            "$_id",
+                                            "$$REMOVE"
+                                        ]
+                                    }
+                                }
+
+                            }
+                        }
+                    ],
+
+                    totalStats: [
+
+                        {
+                            $addFields: {
+                                orderStatusObjId: {
+                                    $cond: [
+                                        { $and: [{ $ne: ["$OrderStatusId", null] }, { $ne: ["$OrderStatusId", ""] }] },
+                                        { $toObjectId: "$OrderStatusId" },
+                                        null
+                                    ]
+                                }
+                            }
+                        },
+
+                        {
+                            $lookup: {
+                                from: "orderstatuses",
+                                localField: "orderStatusObjId",
+                                foreignField: "_id",
+                                as: "statusInfo"
+                            }
+                        },
+
+                        { $unwind: { path: "$statusInfo", preserveNullAndEmptyArrays: true } },
+
+                        {
+                            $addFields: {
+                                statusDesc: {
+                                    $ifNull: ["$statusInfo.OrderStatusDesc", "Desconhecido"]
+                                }
+                            }
+                        },
+
+                        {
+                            $group: {
+                                _id: null,
+
+                                TotalOrders: { $sum: 1 },
+
+                                TotalInProcessOrders: {
+                                    $sum: {
+                                        $cond: [
+                                            { $not: { $in: ["$statusDesc", ["Concluído", "Cancelado"]] } },
+                                            1,
+                                            0
+                                        ]
+                                    }
+                                },
+
+                                TotalCompletedOrders: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ["$statusDesc", "Concluído"] },
+                                            1,
+                                            0
+                                        ]
+                                    }
+                                },
+
+                                TotalCanceledOrders: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ["$statusDesc", "Cancelado"] },
+                                            1,
+                                            0
+                                        ]
+                                    }
+                                }
+
+                            }
+                        }
+
+                    ]
+
+                }
+            }
+
         ]);
 
-        const services = servicesResult.value || [];
-        const products = productsResult.value || [];
+        const period = stats[0].periodStats[0] || {};
+        const total = stats[0].totalStats[0] || {};
 
-        // Processar serviços mais comuns
-        const serviceMap = services.reduce((acc, ser) => {
-            const name = ser.ServiceId?.ServiceName;
-            if (name) {
-                acc[name] = (acc[name] || 0) + (ser.Quantity || 1);
+        const completedOrderIds = period.completedOrderIds || [];
+
+        const dashboard = await OrderProduct.aggregate([
+
+            { $match: { OrderId: { $in: completedOrderIds } } },
+
+            {
+                $facet: {
+
+                    topProducts: [
+
+                        {
+                            $lookup: {
+                                from: "products",
+                                localField: "ProductId",
+                                foreignField: "_id",
+                                as: "product"
+                            }
+                        },
+
+                        { $unwind: "$product" },
+
+                        {
+                            $group: {
+                                _id: "$product.ProductName",
+                                quantity: { $sum: { $ifNull: ["$Quantity", 1] } }
+                            }
+                        },
+
+                        { $sort: { quantity: -1 } },
+                        { $limit: 5 },
+
+                        {
+                            $project: {
+                                _id: 0,
+                                name: "$_id",
+                                quantity: 1
+                            }
+                        }
+
+                    ],
+
+                    topCategories: [
+
+                        {
+                            $lookup: {
+                                from: "products",
+                                localField: "ProductId",
+                                foreignField: "_id",
+                                as: "product"
+                            }
+                        },
+
+                        { $unwind: "$product" },
+
+                        {
+                            $lookup: {
+                                from: "productcategories",
+                                localField: "product.ProductCategoryId",
+                                foreignField: "_id",
+                                as: "category"
+                            }
+                        },
+
+                        { $unwind: "$category" },
+
+                        {
+                            $group: {
+                                _id: "$category.ProductCategoryDesc",
+                                quantity: { $sum: 1 }
+                            }
+                        },
+
+                        { $sort: { quantity: -1 } },
+                        { $limit: 5 },
+
+                        {
+                            $project: {
+                                _id: 0,
+                                name: "$_id",
+                                quantity: 1
+                            }
+                        }
+
+                    ]
+
+                }
             }
-            return acc;
-        }, {});
 
-        const topFiveSer = Object.entries(serviceMap)
-            .map(([name, quantity]) => ({ name, quantity }))
-            .sort((a, b) => b.quantity - a.quantity)
-            .slice(0, 5);
+        ]);
 
-        // Processar produtos mais vendidos
-        const productMap = products.reduce((acc, pro) => {
-            const name = pro.ProductId?.ProductName;
-            if (name) {
-                acc[name] = (acc[name] || 0) + (pro.Quantity || 1);
+        const topServices = await OrderService.aggregate([
+
+            { $match: { OrderId: { $in: completedOrderIds } } },
+
+            {
+                $lookup: {
+                    from: "services",
+                    localField: "ServiceId",
+                    foreignField: "_id",
+                    as: "service"
+                }
+            },
+
+            { $unwind: "$service" },
+
+            {
+                $group: {
+                    _id: "$service.ServiceName",
+                    quantity: { $sum: { $ifNull: ["$Quantity", 1] } }
+                }
+            },
+
+            { $sort: { quantity: -1 } },
+            { $limit: 5 },
+
+            {
+                $project: {
+                    _id: 0,
+                    name: "$_id",
+                    quantity: 1
+                }
             }
-            return acc;
-        }, {});
 
-        const topFivePro = Object.entries(productMap)
-            .map(([name, quantity]) => ({ name, quantity }))
-            .sort((a, b) => b.quantity - a.quantity)
-            .slice(0, 5);
+        ]);
 
-        // Processar categorias de produtos
-        const categoryMap = products.reduce((acc, pro) => {
-            const categoryId = pro.ProductId?.ProductCategoryId?.toString();
-            if (categoryId) {
-                acc[categoryId] = (acc[categoryId] || 0) + 1;
-            }
-            return acc;
-        }, {});
+        const result = dashboard[0] || {};
 
-        let topFiveCategories = [];
-        if (Object.keys(categoryMap).length > 0) {
-            const categories = await ProductCategory.find({ _id: { $in: Object.keys(categoryMap) } });
-            topFiveCategories = categories
-                .map(cat => ({ name: cat.ProductCategoryDesc, quantity: categoryMap[cat._id.toString()] }))
-                .sort((a, b) => b.quantity - a.quantity)
-                .slice(0, 5);
-        }
+        console.timeEnd("DashboardStats");
 
-        return res.status(200).json({
+        return res.json({
+
             Os: {
-                TotalOrdersInterval: orders.length,
-                InProcessOrders: stats.inProcessOrders.length,
-                CompletedOrders: stats.completedOrders.length,
-                CanceledOrders: stats.canceledOrders.length,
+                TotalOrders: total.TotalOrders || 0,
+                PeriodTotalOrders: period.PeriodTotalOrders || 0,
+
+                TotalInProcessOrders: total.TotalInProcessOrders || 0,
+                PeriodInProcessOrders: period.PeriodInProcessOrders || 0,
+
+                TotalCompletedOrders: total.TotalCompletedOrders || 0,
+                PeriodCompletedOrders: period.PeriodCompletedOrders || 0,
+
+                TotalCanceledOrders: total.TotalCanceledOrders || 0,
+                PeriodCanceledOrders: period.PeriodCanceledOrders || 0
             },
-            ValuesInOrdes: {
-                InProcessRevenue: stats.revenues.inProcess,
-                CompletedRevenue: stats.revenues.completed,
-                CanceledRevenue: stats.revenues.canceled,
+            ValuesInOrders: {
+                InProcessRevenue: period.InProcessRevenue || 0,
+                CompletedRevenue: period.CompletedRevenue || 0,
+                CanceledRevenue: period.CanceledRevenue || 0
+
             },
-            MostCommonServices: topFiveSer,
-            MostSoldProducts: topFivePro,
-            MostSoldCategories: topFiveCategories,
-            NewRecords: {
-                TotalClients: customersResult.value?.length || 0,
-                TotalProducts: productsRecordsResult.value?.length || 0,
-                TotalServices: servicesRecordsResult.value?.length || 0,
-                TotalProfissionals: employeesResult.value?.length || 0,
-                TotalOrders: totalOrders.value || 0
-            },
+            MostCommonServices: topServices || [],
+            MostSoldProducts: result.topProducts || [],
+            MostSoldCategories: result.topCategories || []
+
         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            msg: "Error loading dashboard"
+        });
+
     }
+
 });
 
 
