@@ -300,6 +300,45 @@ router.post('/ordersInfoDashboard/:BusinessId', async (req, res) => {
                             }
                         }
 
+                    ],
+                    clientsStats: [
+                        {
+                            $lookup: {
+                                from: "customers",
+                                pipeline: [
+                                    {
+                                        $match: {
+                                            BusinessId: businessObjectId
+                                        }
+                                    },
+                                    {
+                                        $group: {
+                                            _id: null,
+                                            Total: { $sum: 1 },
+                                            Period: {
+                                                $sum: {
+                                                    $cond: [
+                                                        StartDate && EndDate
+                                                            ? {
+                                                                $and: [
+                                                                    { $gte: ["$createdAt", new Date(StartDate)] },
+                                                                    { $lte: ["$createdAt", new Date(EndDate)] }
+                                                                ]
+                                                            }
+                                                            : false,
+                                                        1,
+                                                        0
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                ],
+                                as: "clientsStats"
+                            }
+                        },
+                        { $unwind: "$clientsStats" },
+                        { $replaceRoot: { newRoot: "$clientsStats" } }
                     ]
 
                 }
@@ -309,6 +348,7 @@ router.post('/ordersInfoDashboard/:BusinessId', async (req, res) => {
 
         const period = stats[0].periodStats[0] || {};
         const total = stats[0].totalStats[0] || {};
+        const clientsStats = stats[0].clientsStats[0] || { Total: 0, Period: 0 };
 
         const completedOrderIds = period.completedOrderIds || [];
 
@@ -463,9 +503,34 @@ router.post('/ordersInfoDashboard/:BusinessId', async (req, res) => {
             },
             MostCommonServices: topServices || [],
             MostSoldProducts: result.topProducts || [],
-            MostSoldCategories: result.topCategories || []
+            MostSoldCategories: result.topCategories || [],
+            NewRecords: {
+                Clients: {
+                    Total: clientsStats.Total,
+                    Period: clientsStats.Period
+                }
+            }
 
         });
+        //  EXEMPLO DE RETORNO NEWRECORDS. NEXT PRA ADD
+        // NewRecords: {
+        //     Clients: {
+        //         Total: totalClients || 0,
+        //         Period: periodClients || 0
+        //     },
+        //     Products: {
+        //         Total: totalProducts || 0,
+        //         Period: periodProducts || 0
+        //     },
+        //     Services: {
+        //         Total: totalServices || 0,
+        //         Period: periodServices || 0
+        //     },
+        //     Professionals: {
+        //         Total: totalProfessionals || 0,
+        //         Period: periodProfessionals || 0
+        //     }
+        // }
 
     } catch (error) {
 
